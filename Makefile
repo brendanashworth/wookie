@@ -8,7 +8,7 @@ all: clean
 
 # Compile for development
 dev: clean
-	$(CC) -g src/wookie.c -o wookie
+	$(CC) -Wall -g src/wookie.c -o wookie
 	$(DBG) wookie
 
 # Install it globally (oh god...)
