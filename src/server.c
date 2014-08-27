@@ -26,7 +26,7 @@ void *wookie_handle_client(void *arg) {
 	int connfd = client->connfd;
 
 	// hold entire request
-	char *request;
+	char *request = "";
 
 	// set buffer and clear it
 	char *buffer = malloc(1025);
@@ -36,16 +36,22 @@ void *wookie_handle_client(void *arg) {
 	while (1) {
 		// read more bytes
 		size_t read_bytes = read(connfd, &buffer, sizeof(buffer));
-		(&buffer)[1024] = '\0'; // null terminate
+		//(&buffer)[1024] = '\0'; // null terminate
 
-		printf("read %zu, buffer: %s\n", read_bytes, buffer);
+		printf("did we get here?\n");
+
+		//printf("read %zu, buffer: %s\n", read_bytes, buffer);
 
 		// append the buffered request to the request
 		request = malloc(strlen(request) + strlen(buffer) + 1);
+		printf("more testing\n");
 		strcat(request, buffer);
+		printf(":c\n");
 
 		// reset buffer
 		memset(&buffer, '\0', sizeof(buffer));
+
+		printf("test\n");
 
 		if (request[sizeof(request) - 1] == '\n' && request[sizeof(request) - 2] == '\n') {
 			printf("finished http request!");
@@ -70,7 +76,9 @@ int wookie_start_server(char *host, int port) {
 	struct sockaddr_in serv_addr;
 
 	// open the socket
+	int on = 1;
 	listenfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(int));
 
 	// set some memory
 	memset(&serv_addr, '0', sizeof(serv_addr));
@@ -81,7 +89,8 @@ int wookie_start_server(char *host, int port) {
 	serv_addr.sin_port = htons(port);
 
 	// bind to ip
-	bind(listenfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr)); 
+	bind(listenfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr));
+
 
 	// backlog of 10
 	listen(listenfd, 10);
@@ -112,4 +121,6 @@ int wookie_start_server(char *host, int port) {
 		sleep(1);
 	}
 
+	// close server
+	close(listenfd);
 }
