@@ -15,42 +15,76 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
+#include "http_parser/parser.h"
+
 // wookie server data representation
-typedef struct {
+struct wookie_server {
 	int port;
 	in_addr_t address;
 	int listenfd;
-} wookie_server;
+};
 
 // wookie client data representation
-typedef struct {
+struct wookie_client {
 	int connfd;
-} wookie_client;
+};
 
 // handles a wookie client (arg is actually a wookie_client instance)
 void *wookie_handle_client(void *arg) {
 	// get arguments
-	wookie_client *client = (wookie_client*)arg;
+	struct wookie_client *client = (struct wookie_client*)arg;
 
+	/* DEBUG */
+	char *request = calloc(1024, sizeof(char*));
+	ssize_t read_bytes = read(client->connfd, request, 1024 * sizeof(char*));
+
+	printf("Size of char: %zd\n", sizeof(char));
+	printf("Read %zd bytes out of max %zd bytes\n", read_bytes, 1024 * sizeof(char*));
+
+	/*
 	// hold entire request
-	char *request = "";
+	char *request = NULL;
 
 	// set buffer and clear it
-	char *buffer = malloc(1025);
-	memset(&buffer, '\0', sizeof(buffer));
+	char *buffer = malloc(sizeof(char*) * 1024);
+	//char *buffer = calloc(1024, sizeof(char*));
 
 	// read until you get \n\n
 	while (1) {
+		printf("1\n");
+
+		printf("Buffer size; %lu\n", sizeof(buffer));
+		printf("file descriptor: %d\n", client->connfd);
+
 		// read more bytes
-		size_t read_bytes = read(client->connfd, &buffer, sizeof(buffer));
+		ssize_t read_bytes = read(client->connfd, &buffer, sizeof(buffer));
 		//-> buffer[1024] = '\0'; // this needs to be null terminated!
 
-		// append the buffered request to the request
-		printf("Allocating: %lu, read_bytes: %zu, strlen(buffer): \n", strlen(request) + read_bytes + 1, read_bytes, strlen(buffer));
-		request = malloc(strlen(request) + read_bytes + 1);
+		printf("%c %c %c %c %c\n", buffer[0], buffer[1], buffer[2], buffer[3], buffer[4]);
 
-		strcat(request, buffer); // now dies here
-		printf("but not here.\n");
+		printf("2\n");
+
+		if (request == NULL)
+			request = malloc(read_bytes + sizeof(char*));
+		else
+			request = realloc(request, sizeof(request) + read_bytes + sizeof(char*));
+
+		printf("3\n");
+
+		// concatenate it on my own :(
+		for (int i = 0; 1; i++) {
+			int length = strlen(request);
+
+			// too long
+			if (i >= read_bytes)
+				break;
+
+			request[length + i] = buffer[i];
+		}
+
+		//strncat(request, buffer, read_bytes); // now dies here
+
+		printf("4\n");
 
 		// reset buffer
 		memset(&buffer, '\0', sizeof(buffer));
@@ -65,9 +99,11 @@ void *wookie_handle_client(void *arg) {
 	}
 
 	// free the buffer
-	free(buffer);
+	free(buffer); */
 
 	// request contains our HTTP request.
+	struct parsed_result *result = malloc(sizeof(struct parsed_result*));
+	result = parser_parse(request);
 
 	// bye bye
 	close(client->connfd);
@@ -79,7 +115,7 @@ void *wookie_handle_client(void *arg) {
 
 int wookie_start_server(char *host, int port) {
 	// create server
-	wookie_server *server = malloc(sizeof(wookie_server*));
+	struct wookie_server *server = malloc(sizeof(struct wookie_server*));
 	server->port = port;
 	server->address = inet_network(host);
 	server->listenfd = -1;
@@ -115,7 +151,7 @@ int wookie_start_server(char *host, int port) {
 	// get clients
 	while (1) {
 		// make wookie_client and pass it to desired handler; wookie_handle_client free's the memory
-		wookie_client *client = malloc(sizeof(wookie_client*));
+		struct wookie_client *client = malloc(sizeof(struct wookie_client*));
 		client->connfd = accept(server->listenfd, (struct sockaddr*)NULL, NULL);
 
 		#ifdef MULTITHREADING
