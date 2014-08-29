@@ -7,20 +7,20 @@ describe('wookie http server', function() {
 
 	});
 
+	// make sure it make's fine!
+	it('should compile without error', function(done) {
+		exec('make', function(error, stdout, stdin) {
+			assert.notOk(error, 'gives error on make');
+			done();
+		});
+	});
+
 	// gotta start the web server
 	before(function() {
 		this.timeout(10000);
 		
 		exec('./wookie 127.0.0.1 8080', function(err, stdout, stderr) {
 			// is running
-		});
-	});
-
-	// make sure it make's fine!
-	it('should compile without error', function(done) {
-		exec('make', function(error, stdout, stdin) {
-			assert.notOk(error, 'gives error on make');
-			done();
 		});
 	});
 

@@ -11,6 +11,9 @@ dev: clean
 	$(CC) -Wall -g src/wookie.c -o wookie
 	$(DBG) wookie
 
+example:
+	$(CC) -Wall app/example/application.c -o wookie
+
 # Install it globally (oh god...)
 install: clean all
 	mv ./wookie $(PREFIX)/wookie
