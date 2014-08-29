@@ -1,4 +1,4 @@
-var assert = require('assert');
+var assert = require('chai').assert;
 
 describe('wookie http server', function() {
 	describe('wookie http parser', function() {
