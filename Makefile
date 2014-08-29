@@ -4,7 +4,7 @@ PREFIX ?= /usr/bin
 
 # Compile for production
 all: clean
-	$(CC) -O1 src/wookie.c -o wookie
+	$(CC) -O3 src/wookie.c -o wookie
 
 # Compile for development
 dev: clean
