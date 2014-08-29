@@ -7,6 +7,17 @@ describe('wookie http server', function() {
 
 	});
 
+	// gotta start the web server
+	before(function(done) {
+		this.timeout(10000);
+		
+		exec('./wookie 127.0.0.1 8080', function(error, stdout, stdin) {
+			console.log(stdout);
+			assert.notOk(error, 'gives error while booting');
+			done();
+		});
+	});
+
 	// make sure it make's fine!
 	it('should compile without error', function(done) {
 		exec('make', function(error, stdout, stdin) {

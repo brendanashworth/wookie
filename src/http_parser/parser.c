@@ -33,8 +33,6 @@ void parser_parse_requestline(struct parsed_result *result, char *orig_request) 
 	// parse path
 	request += 4;
 
-	printf("1) %u\n", result->request_type);
-
 	result->path = malloc(1);
 	result->path[0] = '\0'; // null terminate
 
@@ -50,8 +48,6 @@ void parser_parse_requestline(struct parsed_result *result, char *orig_request) 
 		request++;
 	}
 
-	printf("2) %s\n", result->path);
-
 	// parse version
 	request++; // shift off space
 
@@ -64,8 +60,6 @@ void parser_parse_requestline(struct parsed_result *result, char *orig_request) 
 		printf("%s\n", request);
 		return;
 	}
-
-	printf("3) %u\n", result->version);
 
 	return;
 }
