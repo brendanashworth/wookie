@@ -41,66 +41,6 @@ void *wookie_handle_client(void *arg) {
 	printf("Size of char: %zd\n", sizeof(char));
 	printf("Read %zd bytes out of max %zd bytes\n", read_bytes, 1024 * sizeof(char*));
 
-	/*
-	// hold entire request
-	char *request = NULL;
-
-	// set buffer and clear it
-	char *buffer = malloc(sizeof(char*) * 1024);
-	//char *buffer = calloc(1024, sizeof(char*));
-
-	// read until you get \n\n
-	while (1) {
-		printf("1\n");
-
-		printf("Buffer size; %lu\n", sizeof(buffer));
-		printf("file descriptor: %d\n", client->connfd);
-
-		// read more bytes
-		ssize_t read_bytes = read(client->connfd, &buffer, sizeof(buffer));
-		//-> buffer[1024] = '\0'; // this needs to be null terminated!
-
-		printf("%c %c %c %c %c\n", buffer[0], buffer[1], buffer[2], buffer[3], buffer[4]);
-
-		printf("2\n");
-
-		if (request == NULL)
-			request = malloc(read_bytes + sizeof(char*));
-		else
-			request = realloc(request, sizeof(request) + read_bytes + sizeof(char*));
-
-		printf("3\n");
-
-		// concatenate it on my own :(
-		for (int i = 0; 1; i++) {
-			int length = strlen(request);
-
-			// too long
-			if (i >= read_bytes)
-				break;
-
-			request[length + i] = buffer[i];
-		}
-
-		//strncat(request, buffer, read_bytes); // now dies here
-
-		printf("4\n");
-
-		// reset buffer
-		memset(&buffer, '\0', sizeof(buffer));
-
-		// check for end of request
-		if (request[sizeof(request) - 1] == '\n' && request[sizeof(request) - 2] == '\n') {
-			printf("finished http request!");
-			break;
-		} else {
-			printf("End of buffer is: %c and %c", request[strlen(request)], request[strlen(request) - 1]);
-		}
-	}
-
-	// free the buffer
-	free(buffer); */
-
 	// request contains our HTTP request.
 	struct parsed_result *result = malloc(sizeof(struct parsed_result*));
 	result = parser_parse(request);
