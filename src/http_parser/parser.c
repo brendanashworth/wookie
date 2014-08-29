@@ -26,8 +26,7 @@ void parser_parse_requestline(struct parsed_result *result, char *orig_request) 
 	if (strncmp(request, "GET ", 4) == 0)
 		result->request_type = HTTP_GET;
 	else {
-		printf("%c %c %c %c\n", request[0], request[1], request[2], request[3]);
-		printf("THIS IS A BAD REQUEST. :(\n");
+		printf("Bad request #1.\n");
 		return;
 	}
 
@@ -61,7 +60,7 @@ void parser_parse_requestline(struct parsed_result *result, char *orig_request) 
 	else if (strncmp(request, "HTTP/1.0", 8) == 0)
 		result->version = VERSION_ONE_ZERO;
 	else {
-		printf("BAD REQUEST :(\n");
+		printf("Bad request #2.\n");
 		printf("%s\n", request);
 		return;
 	}
@@ -76,6 +75,8 @@ struct parsed_result *parser_parse(char *request) {
 
 	// parse request line
 	parser_parse_requestline(result, request);
+
+	//parser_parse_headers()
 
 	return result;
 }

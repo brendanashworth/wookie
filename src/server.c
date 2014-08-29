@@ -34,16 +34,29 @@ void *wookie_handle_client(void *arg) {
 	// get arguments
 	struct wookie_client *client = (struct wookie_client*)arg;
 
-	/* DEBUG */
+	// wow, hey, that works
 	char *request = calloc(1024, sizeof(char*));
-	ssize_t read_bytes = read(client->connfd, request, 1024 * sizeof(char*));
+	ssize_t total_read_bytes = 0;
 
-	printf("Size of char: %zd\n", sizeof(char));
-	printf("Read %zd bytes out of max %zd bytes\n", read_bytes, 1024 * sizeof(char*));
+	// MUST WATCH OUT FOR BUFFER OVERFLOW!
+	while (1) {
+		ssize_t read_bytes = read(client->connfd, &request[total_read_bytes], (1024 * sizeof(char*)) - total_read_bytes);
+		total_read_bytes += read_bytes;
+
+		// check if \r\n\r\n
+		if (request[total_read_bytes - 1] == '\n' && request[total_read_bytes - 3] == '\n'
+			&& request[total_read_bytes - 2] == '\r' && request[total_read_bytes - 4] == '\r')
+			break;
+		else if (request[total_read_bytes - 1] == '\n' && request[total_read_bytes - 2] == '\n')
+			break;
+	}
 
 	// request contains our HTTP request.
 	struct parsed_result *result = malloc(sizeof(struct parsed_result*));
 	result = parser_parse(request);
+
+	char *message = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<html><body><h1>WOOKIE HTTP SERVER :D</h1></body></html>\r\n";
+	send(client->connfd, message, strlen(message), 0);
 
 	// bye bye
 	close(client->connfd);
