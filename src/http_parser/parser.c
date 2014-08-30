@@ -1,10 +1,16 @@
 // parser.c
-#import <stdio.h>
 #import <string.h>
 #import <stdlib.h>
 
+// for extreme performance, you can tailor-fit which methods you are using.
+// comment out if you are not using a method
+#define REQTYPE_HTTP_POST
+
 enum http_request_type {
 	HTTP_GET,
+	#ifdef REQTYPE_HTTP_POST
+	HTTP_POST,
+	#endif
 };
 
 enum http_version {
@@ -18,57 +24,56 @@ struct parsed_result {
 	enum http_version version;
 };
 
-void parser_parse_requestline(struct parsed_result *result, char *orig_request) {
+int parser_parse_requestline(struct parsed_result *result, char *orig_request) {
 	char *request = orig_request;
 
 	// parse method
 	// GET
-	if (strncmp(request, "GET ", 4) == 0)
+	if (strncmp(request, "GET ", 4) == 0) {
 		result->request_type = HTTP_GET;
-	else {
-		printf("Bad request #1.\n");
-		return;
+		request += 4;
+	#ifdef REQTYPE_HTTP_POST
+	} else if (strncmp(request, "POST ", 5) == 0) {
+		result->request_type = HTTP_POST;
+		request += 5;
+	#endif
+	} else {
+		return -1;
 	}
 
 	// parse path
-	request += 4;
-
 	result->path = malloc(1);
-	result->path[0] = '\0'; // null terminate
+	//result->path[0] = '\0'; // null terminate
 
 	// continue until there is a space
-	for (int i = 0; 1; i++) {
-		if (request[0] == ' ')
-			break;
-		else {
-			result->path = realloc(result->path, sizeof(result->path) + 1);
-			result->path[i] = request[i];
-		}
+	for (int i = 0; request[0] != ' '; i++) {
+		result->path = realloc(result->path, sizeof(result->path) + 2); // allocate one for new char and one for \0
+		result->path[i] = request[i];
 
-		request++;
+		request++; // shift pointer
 	}
+	result->path[sizeof(result->path) + 1] = '\0'; // null terminate
+	request++; // shift off space
 
 	// parse version
-	request++; // shift off space
 
 	if (strncmp(request, "HTTP/1.1", 8) == 0)
 		result->version = VERSION_ONE_ONE;
 	else if (strncmp(request, "HTTP/1.0", 8) == 0)
 		result->version = VERSION_ONE_ZERO;
-	else {
-		printf("Bad request #2.\n");
-		printf("%s\n", request);
-		return;
-	}
+	else
+		return -2;
 
-	return;
+	return 0;
 }
 
 struct parsed_result *parser_parse(char *request) {
 	struct parsed_result *result = malloc(sizeof(struct parsed_result*));
 
 	// parse request line
-	parser_parse_requestline(result, request);
+	int err = parser_parse_requestline(result, request);
+	if (err < 0)
+		printf("Error parsing request line: bad request %d\n", err);
 
 	//parser_parse_headers()
 
