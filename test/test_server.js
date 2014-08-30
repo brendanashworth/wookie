@@ -29,6 +29,9 @@ describe('wookie http server', function() {
 		http.get('http://localhost:8080/', function(res) {
 			assert.equal(200, res.statusCode, 'does not give 200 response code');
 			done();
+		}).on('error', function(err) {
+			assert.notOk(err, 'does not give 200 response code (error)');
+			done();
 		});
 	});
 });
