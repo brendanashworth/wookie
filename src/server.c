@@ -1,7 +1,7 @@
 // server.c
 
 // comment this line out to disable multithreading
-#define MULTITHREADING
+//#define MULTITHREADING
 
 #include <time.h>
 #include <stdio.h>
@@ -9,7 +9,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#ifdef MULTITHREADING
 #include <pthread.h>
+#endif
 #include <arpa/inet.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -55,7 +57,7 @@ void *wookie_handle_client(void *arg) {
 	struct parsed_result *result = malloc(sizeof(struct parsed_result*));
 	result = parser_parse(request);
 
-	char *message = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<html><body><h1>WOOKIE HTTP SERVER :D</h1></body></html>\r\n";
+	char *message = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 56\r\n\r\n<html><body><h1>WOOKIE HTTP SERVER :D</h1></body></html>\r\n";
 	send(client->connfd, message, strlen(message), 0);
 
 	// bye bye
@@ -63,7 +65,13 @@ void *wookie_handle_client(void *arg) {
 	free(client);
 
 	free(request);
+
+	// if is multithreaded
+	#ifdef MULTITHREADING
 	pthread_exit(0);
+	#endif
+
+	return NULL;
 }
 
 int wookie_start_server(char *host, int port) {
@@ -80,21 +88,28 @@ int wookie_start_server(char *host, int port) {
 
 	// setup the server address
 	struct sockaddr_in server_address;
-	memset(&server_address, '0', sizeof(server_address));
+	memset(&server_address, '\0', sizeof(server_address));
 
 	server_address.sin_family = AF_INET;
 	server_address.sin_addr.s_addr = htonl(server->address);
 	server_address.sin_port = htons(server->port);
 
 	// bind to ip
-	bind(server->listenfd, (struct sockaddr*)&server_address, sizeof(server_address));
+	int result = bind(server->listenfd, (struct sockaddr*)&server_address, sizeof(server_address));
 
-	// backlog of 10
-	int result = listen(server->listenfd, 10);
-
-	// check for errors
+	// check for binding errors
 	if (result == -1) {
 		printf("ERROR: Could not bind to socket %s:%d\n", host, server->port);
+		free(server);
+		return 1;
+	}
+
+	// backlog of 10
+	result = listen(server->listenfd, 10);
+
+	// check for listen errors
+	if (result == -1) {
+		printf("ERROR: Could not listen on socket %s:%d\n", host, server->port);
 		free(server);
 		return 1;
 	}
@@ -116,9 +131,6 @@ int wookie_start_server(char *host, int port) {
 		// this handles it in the main thread, which can be a massive issue to performance.
 		wookie_handle_client(client);
 		#endif
-
-		// sleep
-		sleep(1);
 	}
 
 	// close server

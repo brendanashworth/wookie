@@ -9,7 +9,7 @@ struct wookie_framework {
 struct wookie_route {
 	char *path;
 	enum http_request_type reqtype;
-	void (*function)(struct wookie_request*, struct wookie_response*);
+	void *(*call_route)(struct wookie_request*, struct wookie_response*);
 };
 
 struct wookie_request {

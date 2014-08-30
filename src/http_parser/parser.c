@@ -4,11 +4,11 @@
 
 // for extreme performance, you can tailor-fit which methods you are using.
 // comment out if you are not using a method
-#define REQTYPE_HTTP_POST
+#define HTTP_REQTYPE_POST
 
 enum http_request_type {
 	HTTP_GET,
-	#ifdef REQTYPE_HTTP_POST
+	#ifdef HTTP_REQTYPE_POST
 	HTTP_POST,
 	#endif
 };
@@ -32,7 +32,7 @@ int parser_parse_requestline(struct parsed_result *result, char *orig_request) {
 	if (strncmp(request, "GET ", 4) == 0) {
 		result->request_type = HTTP_GET;
 		request += 4;
-	#ifdef REQTYPE_HTTP_POST
+	#ifdef HTTP_REQTYPE_POST
 	} else if (strncmp(request, "POST ", 5) == 0) {
 		result->request_type = HTTP_POST;
 		request += 5;

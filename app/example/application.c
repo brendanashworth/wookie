@@ -4,7 +4,7 @@
 
 #import "../../src/framework/framework.h"
 
-void handle_request(struct wookie_request *request, struct wookie_response *response) {
+void *handle_request(struct wookie_request *request, struct wookie_response *response) {
 	// do something
 }
 
@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
 	struct wookie_route *route = malloc(sizeof(struct wookie_route*));
 	route->path = "/";
 	route->reqtype = HTTP_GET;
-	route->function = &handle_request;
+	route->call_route = &handle_request;
 	wookie_add_route(framework, route);
 
 	// start
