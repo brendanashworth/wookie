@@ -2,7 +2,7 @@ language: c
 
 install:
   - npm install mocha -g
-  - npm install
+  - cd test && npm install && cd ..
 
 script: mocha
 
