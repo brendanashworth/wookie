@@ -1,7 +1,8 @@
 // server.c
 
-// comment this line out to disable multithreading
-//#define MULTITHREADING
+// multithreading options (comment multithreading out to go synchronously)
+#define MULTITHREADING
+#define MULTITHREADING_THREADS 10
 
 #include <time.h>
 #include <stdio.h>
@@ -20,21 +21,21 @@
 #include "http_parser/parser.h"
 
 // wookie server data representation
-struct wookie_server {
+typedef struct {
 	int port;
 	in_addr_t address;
 	int listenfd;
-};
+} wookie_server;
 
 // wookie client data representation
-struct wookie_client {
+typedef struct {
 	int connfd;
-};
+} wookie_client;
 
 // handles a wookie client (arg is actually a wookie_client instance)
 void *wookie_handle_client(void *arg) {
 	// get arguments
-	struct wookie_client *client = (struct wookie_client*)arg;
+	wookie_client *client = (wookie_client*)arg;
 
 	// wow, hey, that works
 	char *request = calloc(1024, sizeof(char*));
@@ -54,7 +55,7 @@ void *wookie_handle_client(void *arg) {
 	}
 
 	// request contains our HTTP request.
-	struct parsed_result *result = malloc(sizeof(struct parsed_result*));
+	parsed_result *result = malloc(sizeof(parsed_result*));
 	result = parser_parse(request);
 
 	char *message = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 56\r\n\r\n<html><body><h1>WOOKIE HTTP SERVER :D</h1></body></html>\r\n";
@@ -76,7 +77,7 @@ void *wookie_handle_client(void *arg) {
 
 int wookie_start_server(char *host, int port) {
 	// create server
-	struct wookie_server *server = malloc(sizeof(struct wookie_server*));
+	wookie_server *server = malloc(sizeof(wookie_server*));
 	server->port = port;
 	server->address = inet_network(host);
 	server->listenfd = -1;
@@ -119,7 +120,7 @@ int wookie_start_server(char *host, int port) {
 	// get clients
 	while (1) {
 		// make wookie_client and pass it to desired handler; wookie_handle_client free's the memory
-		struct wookie_client *client = malloc(sizeof(struct wookie_client*));
+		wookie_client *client = malloc(sizeof(wookie_client*));
 		client->connfd = accept(server->listenfd, (struct sockaddr*)NULL, NULL);
 
 		#ifdef MULTITHREADING

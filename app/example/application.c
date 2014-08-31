@@ -2,10 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#import "../../src/framework/framework.h"
+#include "../../src/framework/framework.h"
 
-void *handle_request(struct wookie_request *request, struct wookie_response *response) {
+void *handle_request(wookie_request *request, wookie_response *response) {
 	// do something
+	return NULL;
 }
 
 int main(int argc, char *argv[]) {
@@ -19,13 +20,13 @@ int main(int argc, char *argv[]) {
 	char *host = argv[1];
 	int port = atoi(argv[2]);
 
-	struct wookie_framework *framework = malloc(sizeof(struct wookie_framework*));
+	wookie_framework *framework = malloc(sizeof(wookie_framework*));
 
 	// make framework
 	framework = wookie_new_framework(host, port);
 
 	// add routes
-	struct wookie_route *route = malloc(sizeof(struct wookie_route*));
+	wookie_route *route = malloc(sizeof(wookie_route*));
 	route->path = "/";
 	route->reqtype = HTTP_GET;
 	route->call_route = &handle_request;

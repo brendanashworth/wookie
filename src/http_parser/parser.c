@@ -2,29 +2,31 @@
 #import <string.h>
 #import <stdlib.h>
 
-// for extreme performance, you can tailor-fit which methods you are using.
-// comment out if you are not using a method
+// for extreme performance, you can tailor-fit the parser.
+// comment out if you are not using a section
+#define HTTP_CHECK_PATH
+
 #define HTTP_REQTYPE_POST
 
-enum http_request_type {
+typedef enum {
 	HTTP_GET,
 	#ifdef HTTP_REQTYPE_POST
 	HTTP_POST,
 	#endif
-};
+} http_request_type;
 
-enum http_version {
+typedef enum {
 	VERSION_ONE_ONE,
 	VERSION_ONE_ZERO,
-};
+} http_version;
 
-struct parsed_result {
-	enum http_request_type request_type;
+typedef struct {
+	http_request_type request_type;
 	char *path;
-	enum http_version version;
-};
+	http_version version;
+} parsed_result;
 
-int parser_parse_requestline(struct parsed_result *result, char *orig_request) {
+int parser_parse_requestline(parsed_result *result, char *orig_request) {
 	char *request = orig_request;
 
 	// parse method
@@ -42,8 +44,7 @@ int parser_parse_requestline(struct parsed_result *result, char *orig_request) {
 	}
 
 	// parse path
-	result->path = malloc(1);
-	//result->path[0] = '\0'; // null terminate
+	result->path = malloc(1); // we don't null terminate until after the for loop
 
 	// continue until there is a space
 	for (int i = 0; request[0] != ' '; i++) {
@@ -55,6 +56,19 @@ int parser_parse_requestline(struct parsed_result *result, char *orig_request) {
 	result->path[sizeof(result->path) + 1] = '\0'; // null terminate
 	request++; // shift off space
 
+	#ifdef HTTP_CHECK_PATH
+	/* checks to make sure it starts with a '/', doesn't contain null chars, etc */
+	if (result->path[0] != '/')
+		return -2;
+
+	// check for characters: 65-122, numbers?, 
+	//else if (result->path[strlen(result->path)])
+
+
+
+
+	#endif
+
 	// parse version
 
 	if (strncmp(request, "HTTP/1.1", 8) == 0)
@@ -62,13 +76,13 @@ int parser_parse_requestline(struct parsed_result *result, char *orig_request) {
 	else if (strncmp(request, "HTTP/1.0", 8) == 0)
 		result->version = VERSION_ONE_ZERO;
 	else
-		return -2;
+		return -4;
 
 	return 0;
 }
 
-struct parsed_result *parser_parse(char *request) {
-	struct parsed_result *result = malloc(sizeof(struct parsed_result*));
+parsed_result *parser_parse(char *request) {
+	parsed_result *result = malloc(sizeof(parsed_result*));
 
 	// parse request line
 	int err = parser_parse_requestline(result, request);
