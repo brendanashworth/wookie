@@ -14,12 +14,12 @@ typedef struct {
 	void *(*call_route)(wookie_request*, wookie_response*);
 } wookie_route;
 
-typedef struct {
+struct wookie_framework {
 	struct wookie_server *server;
 	char *host;
 	int port;
 	wookie_route *routes;
-} wookie_framework;
+};
 
 wookie_framework *wookie_new_framework(char *host, int port) {
 	wookie_framework *framework = malloc(sizeof(wookie_framework*));
@@ -39,5 +39,5 @@ void wookie_add_route(wookie_framework *framework, wookie_route *route) {
 int wookie_start_framework(wookie_framework *framework) {
 	// go!
 	printf("Starting wookie HTTP server on %s:%d\n", framework->host, framework->port);
-	return wookie_start_server(framework->host, framework->port);
+	return wookie_start_server(framework, framework->host, framework->port);
 }

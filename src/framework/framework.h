@@ -2,6 +2,9 @@
 #ifndef HEADER_FRAMEWORK
 #define HEADER_FRAMEWORK
 
+// forward declaration
+typedef struct wookie_framework wookie_framework;
+
 #include "../http_parser/parser.h"
 #include "../server.h"
 #include "framework.c"
