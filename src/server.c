@@ -58,8 +58,8 @@ void *wookie_handle_client(void *arg) {
 	parsed_result *result = malloc(sizeof(parsed_result*));
 	result = parser_parse(request);
 
-	char *message = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 56\r\n\r\n<html><body><h1>WOOKIE HTTP SERVER :D</h1></body></html>\r\n";
-	send(client->connfd, message, strlen(message), 0);
+	// give it back to the framework
+	wookie_framework_request(client->server->framework, client, result);
 
 	// bye bye
 	close(client->connfd);

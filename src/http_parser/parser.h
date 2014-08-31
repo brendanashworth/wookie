@@ -4,10 +4,6 @@
 
 #include "parser.c"
 
-//enum http_request_type;
-//enum http_version;
-//struct parsed_result;
-
 /* Parse request. */
 parsed_result *parser_parse(char *request);
 
