@@ -3,8 +3,9 @@ DBG ?= lldb
 PREFIX ?= /usr/bin
 
 # Compile for production
-all: clean
-	$(CC) -O3 src/wookie.c -o wookie
+all:
+	echo "Primary Make rule must be made by you (it is a framework, after all!)"
+	echo "If you want to build the example, run: make example."
 
 # Compile for development
 dev: clean
@@ -13,10 +14,6 @@ dev: clean
 
 example:
 	$(CC) -Wall app/example/application.c -o wookie
-
-# Install it globally (oh god...)
-install: clean all
-	mv ./wookie $(PREFIX)/wookie
 
 # Clean it out
 clean:
