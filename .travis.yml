@@ -9,3 +9,6 @@ script: mocha
 compiler:
   - gcc
   - clang
+
+notifications:
+  email: false

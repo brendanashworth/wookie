@@ -2,10 +2,6 @@
 
 typedef struct {
 
-} wookie_request;
-
-typedef struct {
-
 } wookie_response;
 
 typedef struct {
@@ -45,19 +41,26 @@ int wookie_start_framework(wookie_framework *framework) {
 	return wookie_start_server(framework, framework->host, framework->port);
 }
 
-void wookie_framework_request(wookie_framework* framework, wookie_client* client, parsed_result* result) {
+void *wookie_framework_request(void *arg) {
+	wookie_request *req = (wookie_request*)arg;
+	wookie_framework *framework = req->client->server->framework;
+	wookie_client *client = req->client;
+
 	// iterate through routes, checking if path is EQUAL (not yet to regexes!)
 	for (int i = 0; i < framework->routes_length; i++) {
 		wookie_route *route = malloc(sizeof(wookie_route*));
 		route = &framework->routes[i];
 
 		// check path
-		if (strncmp(result->path, route->path, strlen(route->path) == 0)) {
+		if (strncmp(req->parsed_request->path, route->path, strlen(route->path) == 0)) {
+			printf("IT matched :D\n");
 			char *message = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 56\r\n\r\n<html><body><h1>WOOKIE HTTP SERVER :D</h1></body></html>\r\n";
 			send(client->connfd, message, strlen(message), 0);
 			break;
 		} else {
-			printf("Unmatched %s & %s\n", result->path, route->path);
+			printf("Unmatched %s & %s\n", req->parsed_request->path, route->path);
 		}
 	}
+
+	return NULL;
 }

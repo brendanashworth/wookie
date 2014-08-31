@@ -32,6 +32,11 @@ typedef struct {
 	wookie_server *server;
 } wookie_client;
 
+typedef struct {
+	wookie_client *client;
+	parsed_result *parsed_request;
+} wookie_request;
+
 // handles a wookie client (arg is actually a wookie_client instance)
 void *wookie_handle_client(void *arg) {
 	// get arguments
@@ -46,7 +51,7 @@ void *wookie_handle_client(void *arg) {
 		ssize_t read_bytes = read(client->connfd, &request[total_read_bytes], (1024 * sizeof(char*)) - total_read_bytes);
 		total_read_bytes += read_bytes;
 
-		// check if \r\n\r\n
+		// check if \r\n\r\n or \n\n
 		if (request[total_read_bytes - 1] == '\n' && request[total_read_bytes - 3] == '\n'
 			&& request[total_read_bytes - 2] == '\r' && request[total_read_bytes - 4] == '\r')
 			break;
@@ -58,8 +63,17 @@ void *wookie_handle_client(void *arg) {
 	parsed_result *result = malloc(sizeof(parsed_result*));
 	result = parser_parse(request);
 
+	wookie_request *req = malloc(sizeof(wookie_request*));
+	req->client = client;
+	req->parsed_request = result;
+
 	// give it back to the framework
-	wookie_framework_request(client->server->framework, client, result);
+	#ifdef MULTITHREADING
+	pthread_t thread;
+	pthread_create(&thread, NULL, wookie_framework_request, req);
+	pthread_detach(thread);
+	#endif
+	printf("Multithreading not enabled, cannot return stuff.\n");
 
 	// bye bye
 	close(client->connfd);
