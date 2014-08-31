@@ -5,6 +5,10 @@
 #include "server.h"
 
 int main(int argc, char *argv[]) {
+	printf("DEPRECATED! :D\n");
+	return 1;
+
+	
 	// must provide host and port
 	if (argc != 3) {
 		printf("Usage: wookie [host] [port].\n");
