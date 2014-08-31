@@ -15,15 +15,11 @@ int main(int argc, char *argv[]) {
 		printf("Usage: wookie [host] [port].\n");
 		return 1;
 	}
-
-	// host and port
-	char *host = argv[1];
-	int port = atoi(argv[2]);
-
+	
 	wookie_framework *framework = malloc(sizeof(wookie_framework*));
 
 	// make framework
-	framework = wookie_new_framework(host, port);
+	framework = wookie_new_framework(argv[1], atoi(argv[2]));
 
 	// add routes
 	wookie_route *route = malloc(sizeof(wookie_route*));

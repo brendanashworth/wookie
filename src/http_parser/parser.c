@@ -1,6 +1,7 @@
 // parser.c
-#import <string.h>
-#import <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 
 // for extreme performance, you can tailor-fit the parser.
 // comment out if you are not using a section

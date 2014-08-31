@@ -24,8 +24,7 @@ typedef struct {
 wookie_framework *wookie_new_framework(char *host, int port) {
 	wookie_framework *framework = malloc(sizeof(wookie_framework*));
 
-	framework->host = malloc(strlen(host) + 1);
-	strcpy(framework->host, host);
+	framework->host = host;
 	framework->port = port;
 	framework->routes = malloc(0);
 

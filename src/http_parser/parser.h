@@ -1,4 +1,7 @@
 // parser.h
+#ifndef HEADER_PARSER
+#define HEADER_PARSER
+
 #include "parser.c"
 
 //enum http_request_type;
@@ -12,3 +15,5 @@ parsed_result *parser_parse(char *request);
  * Returns a negative number if it wasn't valid HTML.
  */
 int parser_parse_requestline(parsed_result *result, char *orig_request);
+
+#endif

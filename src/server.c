@@ -18,18 +18,18 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
-#include "http_parser/parser.h"
-
 // wookie server data representation
 typedef struct {
 	int port;
 	in_addr_t address;
 	int listenfd;
+	wookie_framework *framework;
 } wookie_server;
 
 // wookie client data representation
 typedef struct {
 	int connfd;
+	wookie_server *server;
 } wookie_client;
 
 // handles a wookie client (arg is actually a wookie_client instance)
@@ -75,12 +75,13 @@ void *wookie_handle_client(void *arg) {
 	return NULL;
 }
 
-int wookie_start_server(char *host, int port) {
+int wookie_start_server(wookie_framework *framework, char *host, int port) {
 	// create server
 	wookie_server *server = malloc(sizeof(wookie_server*));
 	server->port = port;
 	server->address = inet_network(host);
 	server->listenfd = -1;
+	server->framework = framework;
 
 	// open the socket
 	int on = 1;
@@ -122,6 +123,7 @@ int wookie_start_server(char *host, int port) {
 		// make wookie_client and pass it to desired handler; wookie_handle_client free's the memory
 		wookie_client *client = malloc(sizeof(wookie_client*));
 		client->connfd = accept(server->listenfd, (struct sockaddr*)NULL, NULL);
+		client->server = server;
 
 		#ifdef MULTITHREADING
 		// multithreaded handling of clients
