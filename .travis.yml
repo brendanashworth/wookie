@@ -1,0 +1,8 @@
+language: c
+
+install: npm install mocha -g
+script: mocha
+
+compiler:
+  - gcc
+  - clang
