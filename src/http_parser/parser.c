@@ -65,9 +65,6 @@ int parser_parse_requestline(parsed_result *result, char *orig_request) {
 	// check for characters: 65-122, numbers?, 
 	//else if (result->path[strlen(result->path)])
 
-
-
-
 	#endif
 
 	// parse version

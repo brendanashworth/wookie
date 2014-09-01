@@ -63,6 +63,9 @@ void *wookie_handle_client(void *arg) {
 	parsed_result *result = malloc(sizeof *result);
 	result = parser_parse(request);
 
+	// free up some now useless memory
+	free(request);
+
 	wookie_request *req = malloc(sizeof *req);
 	req->client = client;
 	req->parsed_request = result;
@@ -73,10 +76,12 @@ void *wookie_handle_client(void *arg) {
 	pthread_create(&thread, NULL, wookie_framework_request, req);
 	pthread_detach(thread);
 	#else
-	printf("Multithreading not enabled, cannot return stuff.\n");
+	printf("Multithreading not enabled, cannot continue.\n");
 	close(client->connfd);
+	// free up memory
 	free(client);
 	free(request);
+	free(result);
 	#endif
 
 	// if is multithreaded
@@ -145,6 +150,7 @@ int wookie_start_server(wookie_framework *framework, char *host, int port) {
 		#else
 		// this handles it in the main thread, which can be a massive issue to performance.
 		wookie_handle_client(client);
+		free(client);
 		#endif
 	}
 

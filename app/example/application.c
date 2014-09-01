@@ -6,8 +6,10 @@
 
 void *handle_request(wookie_request *request) {
 	// send answer
-	char *message = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 56\r\n\r\n<html><body><h1>WOOKIE HTTP SERVER :D</h1></body></html>\r\n";
+	char *message = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 94\r\n\r\n<html><body><h1>Example HTTP response, from the Wookie example application.</h1></body></html>\r\n";
 	send(request->client->connfd, message, strlen(message), 0);
+	
+	close(request->client->connfd);
 
 	return NULL;
 }
@@ -33,5 +35,10 @@ int main(int argc, char *argv[]) {
 
 	// start
 	int result = wookie_start_framework(framework);
+
+	// clear memory
+	free(framework);
+	free(route);
+
 	return result;
 }

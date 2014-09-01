@@ -18,7 +18,6 @@ wookie_framework *wookie_new_framework(char*, int);
 /* Add a route to the framework */
 void wookie_add_route(wookie_framework*, wookie_route*);
 
-
 /* Start the framework */
 int wookie_start_framework(wookie_framework*);
 

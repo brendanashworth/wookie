@@ -55,18 +55,38 @@ void *wookie_framework_request(void *arg) {
 	wookie_client *client = req->client;
 
 	// iterate through routes, checking if path is EQUAL (not yet to regexes!)
+	int handled = 0;
 	for (int i = 0; i < framework->routes_length; i++) {
 		// check path
-		if (strncmp(req->parsed_request->path, framework->routes[i]->path, sizeof(framework->routes[i]->path)) == 0) {
+		if (strncmp(req->parsed_request->path, framework->routes[i]->path, sizeof(&framework->routes[i]->path)) == 0) {
 			// call
 			framework->routes[i]->call_route(req);
+
+			free(req->client);
+			free(req->parsed_request->path);
+			free(req->parsed_request);
+			free(req);
+			handled = 1;
 			break;
-		} else {
-			// send 404
-			char *message = "HTTP/1.1 404 Not Found\r\nContent-Type: text/html\r\nContent-Length: 79\r\n\r\n<html><body><h1>wookie HTTP framework</h1><h2>404: not found</h2></body></html>\r\n";
-			send(client->connfd, message, strlen(message), 0);
 		}
 	}
+
+	// must we send 404?
+	if (!handled) {
+		// send 404
+		char *message = "HTTP/1.1 404 Not Found\r\nContent-Type: text/html\r\nContent-Length: 79\r\n\r\n<html><body><h1>wookie HTTP framework</h1><h2>404: not found</h2></body></html>\r\n";
+		send(client->connfd, message, strlen(message), 0);
+		close(client->connfd);
+
+		free(req->client);
+		free(req->parsed_request->path);
+		free(req->parsed_request);
+		free(req);
+	}
+
+	#ifdef MULTITHREADING
+	pthread_exit(0);
+	#endif
 
 	return NULL;
 }
