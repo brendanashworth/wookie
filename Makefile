@@ -1,7 +1,13 @@
 # General compilation settings
 CC ?= clang
 BIN ?= ./wookie
-CFLAGS ?= -Wall -O3 -std=c99
+CFLAGS ?= -Wall -O2
+GCC_CFLAGS ?= -std=c99
+
+# If we're compiling on GCC...
+ifeq ($(CC), gcc)
+	CLFAGS += $(GCC_CFLAGS)
+endif
 
 # Settings specific for each rule
 EXAMPLE_ENTRY ?= app/example/application.c
@@ -13,7 +19,7 @@ all:
 
 # Compiles the example program.
 example:
-	$(CC) $(CLFAGS) $(EXAMPLE_ENTRY) -o $(BIN)
+	$(CC) $(CFLAGS) $(EXAMPLE_ENTRY) -o $(BIN)
 
 # Clean it out
 clean:
