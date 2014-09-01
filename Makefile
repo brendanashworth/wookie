@@ -1,12 +1,11 @@
 # General compilation settings
 CC ?= clang
 BIN ?= ./wookie
-CFLAGS ?= -Wall -O2
-GCC_CFLAGS ?= -std=c99 -lpthread
+CFLAGS ?= -Wall -Wextra -O2
 
 # If we're compiling on GCC...
-ifeq ($(CC),gcc)
-	CFLAGS += $(GCC_CFLAGS)
+ifeq ($(CC), gcc)
+	CFLAGS += -std=c99 -lpthread
 endif
 
 # Settings specific for each rule
