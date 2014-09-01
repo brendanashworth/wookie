@@ -28,6 +28,12 @@ wookie_framework *wookie_new_framework(char *host, int port) {
 }
 
 void wookie_add_route(wookie_framework *framework, wookie_route *route) {
+	// check if over route
+	if (framework->routes_length >= FRAMEWORK_MAX_ROUTES) {
+		printf("ERROR: Too many routes defined. Maximum routes allowed: %d\n", FRAMEWORK_MAX_ROUTES);
+		return;
+	}
+
 	// reallocate for new object
 	framework->routes[framework->routes_length] = malloc(sizeof(wookie_route));
 	// copy over route
