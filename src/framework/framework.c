@@ -1,37 +1,39 @@
 // framework.c
 
-typedef struct {
-
-} wookie_response;
+#define FRAMEWORK_MAX_ROUTES 100
 
 typedef struct {
 	char *path;
 	http_request_type reqtype;
-	void *(*call_route)(wookie_request*, wookie_response*);
+	void *(*call_route)(wookie_request*);
 } wookie_route;
 
 struct wookie_framework {
 	struct wookie_server *server;
 	char *host;
 	int port;
-	wookie_route *routes;
+	wookie_route **routes;
 	int routes_length;
 };
 
 wookie_framework *wookie_new_framework(char *host, int port) {
-	wookie_framework *framework = malloc(sizeof(wookie_framework*));
+	wookie_framework *framework = malloc(sizeof *framework);
 
 	framework->host = host;
 	framework->port = port;
-	framework->routes = malloc(0);
+	framework->routes = malloc(FRAMEWORK_MAX_ROUTES * sizeof(wookie_route*)); // allocate for 100 routes
 	framework->routes_length = 0;
 
 	return framework;
 }
 
 void wookie_add_route(wookie_framework *framework, wookie_route *route) {
-	framework->routes = realloc(framework->routes, sizeof(framework->routes) + sizeof(wookie_route*));
-	framework->routes[sizeof(framework->routes) / sizeof(wookie_route*)] = *route;
+	// reallocate for new object
+	framework->routes[framework->routes_length] = malloc(sizeof(wookie_route));
+	// copy over route
+	framework->routes[framework->routes_length]->path = route->path;
+	framework->routes[framework->routes_length]->reqtype = route->reqtype;
+	framework->routes[framework->routes_length]->call_route = route->call_route;
 	framework->routes_length++;
 }
 
@@ -48,17 +50,15 @@ void *wookie_framework_request(void *arg) {
 
 	// iterate through routes, checking if path is EQUAL (not yet to regexes!)
 	for (int i = 0; i < framework->routes_length; i++) {
-		wookie_route *route = malloc(sizeof(wookie_route*));
-		route = &framework->routes[i];
-
 		// check path
-		if (strncmp(req->parsed_request->path, route->path, strlen(route->path) == 0)) {
-			printf("IT matched :D\n");
-			char *message = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 56\r\n\r\n<html><body><h1>WOOKIE HTTP SERVER :D</h1></body></html>\r\n";
-			send(client->connfd, message, strlen(message), 0);
+		if (strncmp(req->parsed_request->path, framework->routes[i]->path, sizeof(framework->routes[i]->path)) == 0) {
+			// call
+			framework->routes[i]->call_route(req);
 			break;
 		} else {
-			printf("Unmatched %s & %s\n", req->parsed_request->path, route->path);
+			// send 404
+			char *message = "HTTP/1.1 404 Not Found\r\nContent-Type: text/html\r\nContent-Length: 79\r\n\r\n<html><body><h1>wookie HTTP framework</h1><h2>404: not found</h2></body></html>\r\n";
+			send(client->connfd, message, strlen(message), 0);
 		}
 	}
 

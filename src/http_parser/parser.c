@@ -83,7 +83,7 @@ int parser_parse_requestline(parsed_result *result, char *orig_request) {
 }
 
 parsed_result *parser_parse(char *request) {
-	parsed_result *result = malloc(sizeof(parsed_result*));
+	parsed_result *result = malloc(sizeof *result);
 
 	// parse request line
 	int err = parser_parse_requestline(result, request);

@@ -60,10 +60,10 @@ void *wookie_handle_client(void *arg) {
 	}
 
 	// request contains our HTTP request.
-	parsed_result *result = malloc(sizeof(parsed_result*));
+	parsed_result *result = malloc(sizeof *result);
 	result = parser_parse(request);
 
-	wookie_request *req = malloc(sizeof(wookie_request*));
+	wookie_request *req = malloc(sizeof *req);
 	req->client = client;
 	req->parsed_request = result;
 
@@ -72,14 +72,12 @@ void *wookie_handle_client(void *arg) {
 	pthread_t thread;
 	pthread_create(&thread, NULL, wookie_framework_request, req);
 	pthread_detach(thread);
-	#endif
+	#else
 	printf("Multithreading not enabled, cannot return stuff.\n");
-
-	// bye bye
 	close(client->connfd);
 	free(client);
-
 	free(request);
+	#endif
 
 	// if is multithreaded
 	#ifdef MULTITHREADING
@@ -91,7 +89,7 @@ void *wookie_handle_client(void *arg) {
 
 int wookie_start_server(wookie_framework *framework, char *host, int port) {
 	// create server
-	wookie_server *server = malloc(sizeof(wookie_server*));
+	wookie_server *server = malloc(sizeof *server);
 	server->port = port;
 	server->address = inet_network(host);
 	server->listenfd = -1;
@@ -135,7 +133,7 @@ int wookie_start_server(wookie_framework *framework, char *host, int port) {
 	// get clients
 	while (1) {
 		// make wookie_client and pass it to desired handler; wookie_handle_client free's the memory
-		wookie_client *client = malloc(sizeof(wookie_client*));
+		wookie_client *client = malloc(sizeof *client);
 		client->connfd = accept(server->listenfd, (struct sockaddr*)NULL, NULL);
 		client->server = server;
 
