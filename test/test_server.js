@@ -9,7 +9,7 @@ describe('wookie http server', function() {
 
 	// make sure it make's fine!
 	it('should compile without error', function(done) {
-		exec('make', function(error, stdout, stdin) {
+		exec('make example', function(error, stdout, stdin) {
 			assert.notOk(error, 'gives error on make');
 			done();
 		});
@@ -31,6 +31,17 @@ describe('wookie http server', function() {
 			done();
 		}).on('error', function(err) {
 			assert.notOk(err, 'does not give 200 response code (error)');
+			done();
+		});
+	});
+
+	// gives 404
+	it('should give 404 on GET /no-resource-here request', function(done) {
+		http.get('http://localhost:8080/no-resource-here', function(res) {
+			assert.equal(404, res.statusCode, 'does not give 404 response code');
+			done();
+		}).on('error', function(err) {
+			assert.notOk(err, 'does not give 404 response code (error)');
 			done();
 		});
 	});
