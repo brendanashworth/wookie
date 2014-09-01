@@ -1,20 +1,20 @@
+# General compilation settings
 CC ?= clang
-DBG ?= lldb
-PREFIX ?= /usr/bin
+BIN ?= ./wookie
+CFLAGS ?= -Wall -O3 -std=c99
 
-# Compile for production
+# Settings specific for each rule
+EXAMPLE_ENTRY ?= app/example/application.c
+
+# EDIT THIS FOR YOUR OWN APP!
 all:
-	echo "Primary Make rule must be made by you (it is a framework, after all!)"
-	echo "If you want to build the example, run: make example."
+	@echo "Primary Make rule must be made by you (it is a framework, after all!)"
+	@echo "If you want to build the example, run: make example."
 
-# Compile for development
-dev: clean
-	$(CC) -Wall -g src/wookie.c -o wookie
-	$(DBG) wookie
-
+# Compiles the example program.
 example:
-	$(CC) -Wall app/example/application.c -o wookie
+	$(CC) $(CLFAGS) $(EXAMPLE_ENTRY) -o $(BIN)
 
 # Clean it out
 clean:
-	rm -f wookie
+	rm -f $(BIN)
