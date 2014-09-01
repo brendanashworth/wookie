@@ -62,10 +62,12 @@ void *wookie_framework_request(void *arg) {
 			// call
 			framework->routes[i]->call_route(req);
 
+			#ifdef MULTITHREADING
 			free(req->client);
 			free(req->parsed_request->path);
 			free(req->parsed_request);
 			free(req);
+			#endif
 			handled = 1;
 			break;
 		}
@@ -78,10 +80,12 @@ void *wookie_framework_request(void *arg) {
 		send(client->connfd, message, strlen(message), 0);
 		close(client->connfd);
 
+		#ifdef MULTITHREADING
 		free(req->client);
 		free(req->parsed_request->path);
 		free(req->parsed_request);
 		free(req);
+		#endif
 	}
 
 	#ifdef MULTITHREADING

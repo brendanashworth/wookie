@@ -1,7 +1,7 @@
 // server.c
 
 // multithreading options (comment multithreading out to go synchronously)
-#define MULTITHREADING
+//#define MULTITHREADING
 #define MULTITHREADING_THREADS 10
 
 #include <time.h>
@@ -76,12 +76,13 @@ void *wookie_handle_client(void *arg) {
 	pthread_create(&thread, NULL, wookie_framework_request, req);
 	pthread_detach(thread);
 	#else
-	printf("Multithreading not enabled, cannot continue.\n");
+	wookie_framework_request(req);
 	close(client->connfd);
 	// free up memory
-	free(client);
-	free(request);
-	free(result);
+	free(req->client);
+	free(req->parsed_request->path);
+	free(req->parsed_request);
+	free(req);
 	#endif
 
 	// if is multithreaded
