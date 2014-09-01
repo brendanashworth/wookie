@@ -79,7 +79,6 @@ void *wookie_handle_client(void *arg) {
 	wookie_framework_request(req);
 	close(client->connfd);
 	// free up memory
-	free(req->client);
 	free(req->parsed_request->path);
 	free(req->parsed_request);
 	free(req);
@@ -133,6 +132,10 @@ int wookie_start_server(wookie_framework *framework, char *host, int port) {
 		free(server);
 		return 1;
 	}
+
+	#ifndef MULTITHREADING
+	printf("Wookie was not compiled for multithreading. This may be a performance issue.\n");
+	#endif
 
 	printf("Now listening.\n");
 
