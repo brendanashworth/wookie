@@ -2,11 +2,11 @@
 CC ?= clang
 BIN ?= ./wookie
 CFLAGS ?= -Wall -O2
-GCC_CFLAGS ?= -std=c99
+GCC_CFLAGS ?= -std=c99 -lpthread
 
 # If we're compiling on GCC...
-ifeq ($(CC), gcc)
-	CLFAGS += $(GCC_CFLAGS)
+ifeq ($(CC),gcc)
+	CFLAGS += $(GCC_CFLAGS)
 endif
 
 # Settings specific for each rule
