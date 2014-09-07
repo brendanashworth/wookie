@@ -1,12 +1,10 @@
 // server.c
 
 // multithreading options (comment multithreading out to go synchronously)
-//#define MULTITHREADING
+#define MULTITHREADING
 #define MULTITHREADING_THREADS 10
 
-#include <time.h>
 #include <stdio.h>
-#include <errno.h>
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -17,6 +15,10 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+
+#ifdef MULTITHREADING
+#include "cluster.h"
+#endif
 
 // wookie server data representation
 typedef struct {
