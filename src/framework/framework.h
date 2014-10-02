@@ -9,6 +9,7 @@ typedef struct wookie_framework wookie_framework;
 void *wookie_framework_request(void*);
 
 #include "../http_parser/parser.h"
+#include "../http_parser/http_response.h"
 #include "../server.h"
 #include "framework.c"
 
