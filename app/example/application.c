@@ -23,7 +23,7 @@ int main(int argc, char *argv[]) {
 
 	wookie_framework *framework = malloc(sizeof *framework);
 
-	// make framework
+	// make framework, first arg: host, second arg: port
 	framework = wookie_new_framework(argv[1], atoi(argv[2]));
 
 	// add routes

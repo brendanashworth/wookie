@@ -7,3 +7,6 @@
 > wookie is an extremely high performance web server and framework, written in only C.
 
 The software is still in development. If you are a contributor, please push your commits. Once the software is fully-functional (and performance tweaked), I will post req / sec from `ab`.
+
+### Development
+Check out our [wiki](https://github.com/brendanashworth/wookie/wiki) for info.
