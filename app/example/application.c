@@ -6,11 +6,13 @@
 
 void *handle_request(wookie_request *request) {
 	// send answer
-	char *message = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 94\r\n\r\n<html><body><h1>Example HTTP response, from the Wookie example application.</h1></body></html>\r\n";
-	send(request->client->connfd, message, strlen(message), 0);
+	wookie_response *response = malloc(sizeof *response);
+	response->code = 200;
+	response->content = "<html><body><h1>Example HTTP response, from wookie server.</h1></body></html>";
+
+	http_response_send(response, request->client->connfd);
 	
 	close(request->client->connfd);
-
 	return NULL;
 }
 
