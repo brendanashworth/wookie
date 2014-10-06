@@ -66,7 +66,7 @@ void *wookie_handle_client(void *arg) {
 	result = parser_parse(request);
 
 	// free up some now useless memory
-	free(request);
+	w_free(request);
 
 	wookie_request *req = w_malloc(sizeof *req);
 	req->client = client;
