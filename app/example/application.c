@@ -2,15 +2,19 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../../src/framework/framework.h"
+#include "../../src/framework.h"
 
 void *handle_request(wookie_request *request) {
 	// send answer
-	wookie_response *response = malloc(sizeof *response);
+	wookie_response *response = w_malloc(sizeof *response);
 	response->code = 200;
 	response->content = "<html><body><h1>Example HTTP response, from wookie server.</h1></body></html>";
 
+	printf("1\n");
+
 	http_response_send(response, request->client->connfd);
+
+	printf("2\n");
 	
 	close(request->client->connfd);
 	return NULL;
@@ -23,13 +27,13 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 
-	wookie_framework *framework = malloc(sizeof *framework);
+	wookie_framework *framework = w_malloc(sizeof *framework);
 
 	// make framework, first arg: host, second arg: port
 	framework = wookie_new_framework(argv[1], atoi(argv[2]));
 
 	// add routes
-	wookie_route *route = malloc(sizeof *route);
+	wookie_route *route = w_malloc(sizeof *route);
 	route->path = "/";
 	route->reqtype = HTTP_GET;
 	route->call_route = &handle_request;
@@ -39,8 +43,8 @@ int main(int argc, char *argv[]) {
 	int result = wookie_start_framework(framework);
 
 	// clear memory
-	free(framework);
-	free(route);
+	w_free(framework);
+	w_free(route);
 
 	return result;
 }
