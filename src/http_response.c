@@ -44,13 +44,16 @@ void http_response_send_statusline(char *version, char *code, char *message, int
 }
 
 void http_response_send_header(char *key, char *value, int connfd) {
-	char *header = w_malloc(strlen(key) + 2 + strlen(value) + 1);
+	// Calculate length of header
+	size_t length = strlen(key) + 2 + strlen(value) + 1;
+
+	char *header = w_malloc(length);
 	strcpy(header, key);
 	strcat(header, ": ");
 	strcat(header, value);
 
 	// Send actual header
-	send(connfd, header, strlen(header), 0);
+	send(connfd, header, length, 0);
 
 	// Send line endings
 	http_response_end_header(connfd);
