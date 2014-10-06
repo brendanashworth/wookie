@@ -1,6 +1,6 @@
 # wookie
 
-[![Build Status](https://travis-ci.org/boboman13/wookie.svg?branch=master)](https://travis-ci.org/boboman13/wookie)
+[![Build Status](https://travis-ci.org/brendanashworth/wookie.svg?branch=master)](https://travis-ci.org/brendanashworth/wookie)
 
 ![chewbacca and han solo](http://moviesmedia.ign.com/movies/image/article/121/1214564/chewbacca-han-solo_1323716284.jpg)
 
