@@ -10,7 +10,7 @@ void *w_malloc(size_t size) {
 
 	// Ensure the allocation was successful
 	if (ptr == NULL) {
-		printf("w_malloc(%d): errno %d\n", size, errno);
+		printf("w_malloc(%zu): errno %d\n", size, errno);
 		exit(-1);
 	}
 
