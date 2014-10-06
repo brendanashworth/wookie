@@ -10,12 +10,9 @@ void *handle_request(wookie_request *request) {
 	response->code = 200;
 	response->content = "<html><body><h1>Example HTTP response, from wookie server.</h1></body></html>";
 
-	printf("1\n");
-
 	http_response_send(response, request->client->connfd);
 
-	printf("2\n");
-	
+	w_free(response);	
 	close(request->client->connfd);
 	return NULL;
 }
