@@ -7,13 +7,9 @@
 // comment out if you are not using a section
 #define HTTP_CHECK_PATH
 
-#define HTTP_REQTYPE_POST
-
 enum http_request_type {
 	HTTP_GET,
-	#ifdef HTTP_REQTYPE_POST
 	HTTP_POST,
-	#endif
 };
 
 enum http_version {
@@ -35,11 +31,9 @@ int parser_parse_requestline(parsed_result *result, char *orig_request) {
 	if (strncmp(request, "GET ", 4) == 0) {
 		result->request_type = HTTP_GET;
 		request += 4;
-	#ifdef HTTP_REQTYPE_POST
 	} else if (strncmp(request, "POST ", 5) == 0) {
 		result->request_type = HTTP_POST;
 		request += 5;
-	#endif
 	} else {
 		return -1;
 	}
