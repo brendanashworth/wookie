@@ -2,7 +2,7 @@
 #include <sys/socket.h>
 
 struct wookie_response {
-	int code;
+	char *code;
 	char *content;
 };
 
@@ -16,7 +16,7 @@ static inline void http_response_end_header(int connfd) {
 
 void http_response_send(wookie_response *response, int connfd) {
 	// First send response status
-	http_response_send_statusline("HTTP/1.1", "200", "OK", connfd);
+	http_response_send_statusline("HTTP/1.1", response->code, "OK", connfd);
 
 	http_response_send_header("Content-Length", "xyz", connfd);
 	http_response_send_header("Server", "wookie", connfd);

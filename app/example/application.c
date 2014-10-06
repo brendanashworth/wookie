@@ -7,7 +7,7 @@
 void *handle_request(wookie_request *request) {
 	// send answer
 	wookie_response *response = w_malloc(sizeof *response);
-	response->code = 200;
+	response->code = "200";
 	response->content = "<html><body><h1>Example HTTP response, from wookie server.</h1></body></html>";
 
 	http_response_send(response, request->client->connfd);
