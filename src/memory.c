@@ -1,6 +1,7 @@
 // memory.c
 #include <errno.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 void *w_malloc(size_t size) {
 	void *ptr;
