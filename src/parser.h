@@ -1,8 +1,6 @@
 // parser.h
-#ifndef HEADER_PARSER
-#define HEADER_PARSER
-
-#include "parser.c"
+#ifndef _PARSER_H
+#define _PARSER_H
 
 /* Parse request. */
 parsed_result *parser_parse(char *request);
@@ -12,4 +10,5 @@ parsed_result *parser_parse(char *request);
  */
 int parser_parse_requestline(parsed_result *result, char *orig_request);
 
+#include "parser.c"
 #endif

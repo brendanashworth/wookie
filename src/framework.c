@@ -17,11 +17,11 @@ struct wookie_framework {
 };
 
 wookie_framework *wookie_new_framework(char *host, int port) {
-	wookie_framework *framework = malloc(sizeof *framework);
+	wookie_framework *framework = w_malloc(sizeof *framework);
 
 	framework->host = host;
 	framework->port = port;
-	framework->routes = malloc(FRAMEWORK_MAX_ROUTES * sizeof(wookie_route*)); // allocate for 100 routes
+	framework->routes = w_malloc(FRAMEWORK_MAX_ROUTES * sizeof(wookie_route*)); // allocate for 100 routes
 	framework->routes_length = 0;
 
 	return framework;
@@ -35,7 +35,7 @@ void wookie_add_route(wookie_framework *framework, wookie_route *route) {
 	}
 
 	// reallocate for new object
-	framework->routes[framework->routes_length] = malloc(sizeof(wookie_route));
+	framework->routes[framework->routes_length] = w_malloc(sizeof(wookie_route));
 	// copy over route
 	framework->routes[framework->routes_length]->path = route->path;
 	framework->routes[framework->routes_length]->reqtype = route->reqtype;
@@ -63,10 +63,10 @@ void *wookie_framework_request(void *arg) {
 			framework->routes[i]->call_route(req);
 
 			#ifdef MULTITHREADING
-			free(req->client);
-			free(req->parsed_request->path);
-			free(req->parsed_request);
-			free(req);
+			w_free(req->client);
+			w_free(req->parsed_request->path);
+			w_free(req->parsed_request);
+			w_free(req);
 			#endif
 			handled = 1;
 			break;
@@ -81,10 +81,10 @@ void *wookie_framework_request(void *arg) {
 		close(client->connfd);
 
 		#ifdef MULTITHREADING
-		free(req->client);
-		free(req->parsed_request->path);
-		free(req->parsed_request);
-		free(req);
+		w_free(req->client);
+		w_free(req->parsed_request->path);
+		w_free(req->parsed_request);
+		w_free(req);
 		#endif
 	}
 

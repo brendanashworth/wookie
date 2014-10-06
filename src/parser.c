@@ -45,11 +45,11 @@ int parser_parse_requestline(parsed_result *result, char *orig_request) {
 	}
 
 	// parse path
-	result->path = malloc(1); // we don't null terminate until after the for loop
+	result->path = w_malloc(1); // we don't null terminate until after the for loop
 
 	// continue until there is a space
 	for (int i = 0; request[0] != ' '; i++) {
-		result->path = realloc(result->path, sizeof(result->path) + 2); // allocate one for new char and one for \0
+		result->path = w_realloc(result->path, sizeof(result->path) + 2); // allocate one for new char and one for \0
 		result->path[i] = request[i];
 
 		request++; // shift pointer
@@ -80,7 +80,7 @@ int parser_parse_requestline(parsed_result *result, char *orig_request) {
 }
 
 parsed_result *parser_parse(char *request) {
-	parsed_result *result = malloc(sizeof *result);
+	parsed_result *result = w_malloc(sizeof *result);
 
 	// parse request line
 	int err = parser_parse_requestline(result, request);

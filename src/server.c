@@ -45,7 +45,7 @@ void *wookie_handle_client(void *arg) {
 	wookie_client *client = (wookie_client*)arg;
 
 	// wow, hey, that works
-	char *request = calloc(1024, sizeof(char*));
+	char *request = w_calloc(1024, sizeof(char*));
 	ssize_t total_read_bytes = 0;
 
 	// MUST WATCH OUT FOR BUFFER OVERFLOW!
@@ -62,13 +62,13 @@ void *wookie_handle_client(void *arg) {
 	}
 
 	// request contains our HTTP request.
-	parsed_result *result = malloc(sizeof *result);
+	parsed_result *result = w_malloc(sizeof *result);
 	result = parser_parse(request);
 
 	// free up some now useless memory
 	free(request);
 
-	wookie_request *req = malloc(sizeof *req);
+	wookie_request *req = w_malloc(sizeof *req);
 	req->client = client;
 	req->parsed_request = result;
 
@@ -81,9 +81,9 @@ void *wookie_handle_client(void *arg) {
 	wookie_framework_request(req);
 	close(client->connfd);
 	// free up memory
-	free(req->parsed_request->path);
-	free(req->parsed_request);
-	free(req);
+	w_free(req->parsed_request->path);
+	w_free(req->parsed_request);
+	w_free(req);
 	#endif
 
 	// if is multithreaded
@@ -96,7 +96,7 @@ void *wookie_handle_client(void *arg) {
 
 int wookie_start_server(wookie_framework *framework, char *host, int port) {
 	// create server
-	wookie_server *server = malloc(sizeof *server);
+	wookie_server *server = w_malloc(sizeof *server);
 	server->port = port;
 	server->address = inet_network(host);
 	server->listenfd = -1;
@@ -121,7 +121,7 @@ int wookie_start_server(wookie_framework *framework, char *host, int port) {
 	// check for binding errors
 	if (result == -1) {
 		printf("ERROR: Could not bind to socket %s:%d\n", host, server->port);
-		free(server);
+		w_free(server);
 		return 1;
 	}
 
@@ -131,7 +131,7 @@ int wookie_start_server(wookie_framework *framework, char *host, int port) {
 	// check for listen errors
 	if (result == -1) {
 		printf("ERROR: Could not listen on socket %s:%d\n", host, server->port);
-		free(server);
+		w_free(server);
 		return 1;
 	}
 
@@ -144,7 +144,7 @@ int wookie_start_server(wookie_framework *framework, char *host, int port) {
 	// get clients
 	while (1) {
 		// make wookie_client and pass it to desired handler; wookie_handle_client free's the memory
-		wookie_client *client = malloc(sizeof *client);
+		wookie_client *client = w_malloc(sizeof *client);
 		client->connfd = accept(server->listenfd, (struct sockaddr*)NULL, NULL);
 		client->server = server;
 
@@ -156,11 +156,11 @@ int wookie_start_server(wookie_framework *framework, char *host, int port) {
 		#else
 		// this handles it in the main thread, which can be a massive issue to performance.
 		wookie_handle_client(client);
-		free(client);
+		w_free(client);
 		#endif
 	}
 
 	// close server
 	close(server->listenfd);
-	free(server);
+	w_free(server);
 }
