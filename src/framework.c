@@ -2,11 +2,11 @@
 
 #define FRAMEWORK_MAX_ROUTES 100
 
-typedef struct {
+struct wookie_route {
 	char *path;
 	http_request_type reqtype;
 	void *(*call_route)(wookie_request*);
-} wookie_route;
+};
 
 struct wookie_framework {
 	struct wookie_server *server;

@@ -2,6 +2,8 @@
 #ifndef _HTTP_RESPONSE_H
 #define _HTTP_RESPONSE_H
 
+typedef struct wookie_response wookie_response;
+
 /**
  * Sends an HTTP response to a client.
  * @param response The response.

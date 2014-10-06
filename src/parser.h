@@ -2,6 +2,8 @@
 #ifndef _PARSER_H
 #define _PARSER_H
 
+typedef enum http_request_type http_request_type;
+
 /* Parse request. */
 parsed_result *parser_parse(char *request);
 

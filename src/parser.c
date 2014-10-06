@@ -9,12 +9,12 @@
 
 #define HTTP_REQTYPE_POST
 
-typedef enum {
+enum http_request_type {
 	HTTP_GET,
 	#ifdef HTTP_REQTYPE_POST
 	HTTP_POST,
 	#endif
-} http_request_type;
+};
 
 typedef enum {
 	VERSION_ONE_ONE,
