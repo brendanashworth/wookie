@@ -21,23 +21,23 @@
 #endif
 
 // wookie server data representation
-typedef struct {
+struct wookie_server {
 	int port;
 	in_addr_t address;
 	int listenfd;
 	wookie_framework *framework;
-} wookie_server;
+};
 
 // wookie client data representation
-typedef struct {
+struct wookie_client {
 	int connfd;
 	wookie_server *server;
-} wookie_client;
+};
 
-typedef struct {
+struct wookie_request {
 	wookie_client *client;
 	parsed_result *parsed_request;
-} wookie_request;
+};
 
 // handles a wookie client (arg is actually a wookie_client instance)
 void *wookie_handle_client(void *arg) {
