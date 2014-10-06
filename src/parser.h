@@ -2,6 +2,8 @@
 #ifndef _PARSER_H
 #define _PARSER_H
 
+typedef struct parsed_result parsed_result;
+typedef enum http_version http_version;
 typedef enum http_request_type http_request_type;
 
 /* Parse request. */

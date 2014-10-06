@@ -16,16 +16,16 @@ enum http_request_type {
 	#endif
 };
 
-typedef enum {
+enum http_version {
 	VERSION_ONE_ONE,
 	VERSION_ONE_ZERO,
-} http_version;
+};
 
-typedef struct {
+struct parsed_result {
 	http_request_type request_type;
 	char *path;
 	http_version version;
-} parsed_result;
+};
 
 int parser_parse_requestline(parsed_result *result, char *orig_request) {
 	char *request = orig_request;
@@ -84,7 +84,7 @@ parsed_result *parser_parse(char *request) {
 
 	// parse request line
 	int err = parser_parse_requestline(result, request);
-	if (err < 0)
+	if (err != 0)
 		printf("Error parsing request line: bad request %d\n", err);
 
 	//parser_parse_headers()
