@@ -55,7 +55,6 @@ void *wookie_framework_request(void *arg) {
 	wookie_response *response = w_malloc(sizeof *response);
 
 	wookie_framework *framework = req->client->server->framework;
-	//wookie_client *client = req->client;
 
 	// Iterate through routes, checking if path is EQUAL (not yet to regexes!)
 	int handled = 0;

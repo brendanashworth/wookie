@@ -77,10 +77,10 @@ void *wookie_handle_client(void *arg) {
 	pthread_detach(thread);
 	#else
 	wookie_framework_request(req);
-	close(client->connfd);
 	// free up memory
 	w_free(req->parsed_request->path);
 	w_free(req->parsed_request);
+	w_free(req->client);
 	w_free(req);
 	#endif
 
