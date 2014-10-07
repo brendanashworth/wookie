@@ -62,15 +62,13 @@ void *wookie_handle_client(void *arg) {
 	}
 
 	// request contains our HTTP request.
-	parsed_result *result = w_malloc(sizeof *result);
-	result = parser_parse(request);
+	wookie_request *req = w_malloc(sizeof *req);
+	req->parsed_request = w_malloc(sizeof req->parsed_request);
+	req->parsed_request = parser_parse(request);
+	req->client = client;
 
 	// free up some now useless memory
 	w_free(request);
-
-	wookie_request *req = w_malloc(sizeof *req);
-	req->client = client;
-	req->parsed_request = result;
 
 	// give it back to the framework
 	#ifdef MULTITHREADING

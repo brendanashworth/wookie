@@ -5,7 +5,7 @@
 struct wookie_route {
 	char *path;
 	http_request_type reqtype;
-	void *(*call_route)(wookie_request*);
+	void *(*call_route)(wookie_request*, wookie_response*);
 };
 
 struct wookie_framework {
@@ -44,51 +44,48 @@ void wookie_add_route(wookie_framework *framework, wookie_route *route) {
 }
 
 int wookie_start_framework(wookie_framework *framework) {
-	// go!
+	// Go!
 	printf("Starting wookie HTTP server on %s:%d\n", framework->host, framework->port);
 	return wookie_start_server(framework, framework->host, framework->port);
 }
 
 void *wookie_framework_request(void *arg) {
+	// Get both the request and response
 	wookie_request *req = (wookie_request*)arg;
-	wookie_framework *framework = req->client->server->framework;
-	wookie_client *client = req->client;
+	wookie_response *response = w_malloc(sizeof *response);
 
-	// iterate through routes, checking if path is EQUAL (not yet to regexes!)
+	wookie_framework *framework = req->client->server->framework;
+	//wookie_client *client = req->client;
+
+	// Iterate through routes, checking if path is EQUAL (not yet to regexes!)
 	int handled = 0;
 	for (int i = 0; i < framework->routes_length; i++) {
-		// check path
+		// Check if the path matches
 		if (strncmp(req->parsed_request->path, framework->routes[i]->path, sizeof(&framework->routes[i]->path)) == 0) {
-			// call
-			framework->routes[i]->call_route(req);
+			// Call the route, supply both the request and response.
+			framework->routes[i]->call_route(req, response);
 
-			#ifdef MULTITHREADING
-			w_free(req->client);
-			w_free(req->parsed_request->path);
-			w_free(req->parsed_request);
-			w_free(req);
-			#endif
 			handled = 1;
 			break;
 		}
 	}
 
-	// must we send 404?
 	if (!handled) {
-		// send 404
-		char *message = "HTTP/1.1 404 Not Found\r\nContent-Type: text/html\r\nContent-Length: 79\r\n\r\n<html><body><h1>wookie HTTP framework</h1><h2>404: not found</h2></body></html>\r\n";
-		send(client->connfd, message, strlen(message), 0);
-		close(client->connfd);
-
-		#ifdef MULTITHREADING
-		w_free(req->client);
-		w_free(req->parsed_request->path);
-		w_free(req->parsed_request);
-		w_free(req);
-		#endif
+		// Send 404
+		response->code = "404";
+		response->content = "<html><body><h1>wookie HTTP framework</h1><h2>404: not found</h2></body></html>";
 	}
 
+	// Send HTTP response and close connection
+	http_response_send(response, req->client->connfd);
+	close(req->client->connfd);
+
 	#ifdef MULTITHREADING
+	w_free(req->client);
+	w_free(req->parsed_request->path);
+	w_free(req->parsed_request);
+	w_free(req);
+
 	pthread_exit(0);
 	#endif
 
