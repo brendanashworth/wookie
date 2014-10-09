@@ -3,6 +3,8 @@
 #ifndef _CLUSTER_H
 #define _CLUSTER_H
 
+typedef struct ewok_cluster ewok_cluster;
+
 void cluster_spawn(void (function)());
 
 void *cluster_loop(void *arg);

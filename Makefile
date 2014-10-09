@@ -23,3 +23,5 @@ example:
 # Clean it out
 clean:
 	rm -f $(BIN)
+
+.PHONY: app benches deps src test

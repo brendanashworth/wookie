@@ -1,5 +1,7 @@
 // http_response.c
 #include <sys/socket.h>
+#include <string.h>
+#include "memory.h"
 
 struct wookie_response {
 	char *code;

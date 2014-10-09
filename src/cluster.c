@@ -1,6 +1,10 @@
 // cluster.c
 #include <pthread.h>
 
+struct ewok_cluster {
+	int workers;
+};
+
 void cluster_spawn(void (function)()) {
 	pthread_t thread;
 	pthread_create(&thread, NULL, cluster_loop, function);

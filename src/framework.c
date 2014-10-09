@@ -1,4 +1,5 @@
 // framework.c
+#include <stdio.h>
 
 #define FRAMEWORK_MAX_ROUTES 100
 

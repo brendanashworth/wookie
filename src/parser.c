@@ -3,6 +3,8 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include "memory.h"
+
 // for extreme performance, you can tailor-fit the parser.
 // comment out if you are not using a section
 #define HTTP_CHECK_PATH

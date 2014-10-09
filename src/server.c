@@ -10,15 +10,13 @@
 #include <unistd.h>
 #ifdef MULTITHREADING
 #include <pthread.h>
+#include "cluster.h"
 #endif
 #include <arpa/inet.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-
-#ifdef MULTITHREADING
-#include "cluster.h"
-#endif
+#include "memory.h"
 
 // wookie server data representation
 struct wookie_server {
@@ -75,6 +73,8 @@ void *wookie_handle_client(void *arg) {
 	pthread_t thread;
 	pthread_create(&thread, NULL, wookie_framework_request, req);
 	pthread_detach(thread);
+
+	pthread_exit(0);
 	#else
 	wookie_framework_request(req);
 	// free up memory
@@ -82,11 +82,6 @@ void *wookie_handle_client(void *arg) {
 	w_free(req->parsed_request);
 	w_free(req->client);
 	w_free(req);
-	#endif
-
-	// if is multithreaded
-	#ifdef MULTITHREADING
-	pthread_exit(0);
 	#endif
 
 	return NULL;
