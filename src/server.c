@@ -61,7 +61,6 @@ void *wookie_handle_client(void *arg) {
 
 	// request contains our HTTP request.
 	wookie_request *req = w_malloc(sizeof *req);
-	req->parsed_request = w_malloc(sizeof req->parsed_request);
 	req->parsed_request = parser_parse(request);
 	req->client = client;
 
