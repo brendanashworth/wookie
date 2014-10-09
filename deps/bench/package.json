@@ -1,0 +1,9 @@
+{
+  "name": "bench",
+  "version": "0.0.2",
+  "repo": "brendanashworth/bench",
+  "description": "Easy to use, beautiful-looking benchmarking library",
+  "keywords": ["benchmark", "bench", "speed"],
+  "license": "MIT",
+  "src": ["bench.h", "bench.c"]
+}
