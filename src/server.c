@@ -14,10 +14,10 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
-//#include "../deps/http-parser/http_parser.h"
+#include "../deps/http-parser/http_parser.h"
 
 #include "memory.h"
-#include "parser.h"
+//#include "parser.h"
 #include "cluster.h"
 
 // wookie server data representation
