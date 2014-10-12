@@ -5,9 +5,20 @@
 
 typedef struct ewok_cluster ewok_cluster;
 
-void cluster_spawn(void (function)());
+/**
+ * Creates an ewok cluster.
+ * @param  workers Amount of workers in the cluster.
+ * @return         The ewok cluster.
+ */
+ewok_cluster *cluster_init(int workers);
 
-void *cluster_loop(void *arg);
+void cluster_spawn(ewok_cluster *cluster, void (function)());
+
+/**
+ * Stops a cluster.
+ * @param cluster The ewok cluster to stop.
+ */
+void cluster_stop(ewok_cluster *cluster);
 
 #include "cluster.c"
 #endif

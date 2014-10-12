@@ -10,5 +10,8 @@ pthread:
 http_parser:
 	$(CC) http_parser.c -o http_parser.o
 
+cluster:
+	$(CC) cluster.c -o cluster.o
+
 clean:
 	rm -f ./*.o
