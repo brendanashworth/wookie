@@ -13,7 +13,7 @@ void cluster_spawn(void (function)()) {
 
 void *cluster_loop(void *arg) {
 	void (*function)();
-	function = &arg;
+	function = (void *)arg;
 
 	while (1) {
 		function();

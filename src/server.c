@@ -35,48 +35,42 @@ struct wookie_client {
 	wookie_server *server;
 };
 
-struct wookie_request {
-	wookie_client *client;
-	parsed_result *parsed_request;
-};
+// Callback for the HTTP parser, simply forwards to wookie_framework_request
+static int on_message_complete(http_parser *parser) {
+	// Pass the request to the framework
+	wookie_framework_request(parser);
+
+	return 0;
+}
 
 // handles a wookie client (arg is actually a wookie_client instance)
 void *wookie_handle_client(void *arg) {
 	// get arguments
 	wookie_client *client = (wookie_client*)arg;
 
-	// wow, hey, that works
-	char *request = w_calloc(1024, sizeof(char*));
-	ssize_t total_read_bytes = 0;
+	http_parser parser;
+	http_parser_init(&parser, HTTP_REQUEST);
+	parser.data = client->connfd;
 
-	// MUST WATCH OUT FOR BUFFER OVERFLOW!
-	while (1) {
-		ssize_t read_bytes = read(client->connfd, &request[total_read_bytes], (1024 * sizeof(char*)) - total_read_bytes);
-		total_read_bytes += read_bytes;
+	size_t nparsed, len = 80 * 1024;
+	char buf[len];
+	ssize_t recved;
 
-		// check if \r\n\r\n or \n\n
-		if (request[total_read_bytes - 1] == '\n' && request[total_read_bytes - 3] == '\n'
-			&& request[total_read_bytes - 2] == '\r' && request[total_read_bytes - 4] == '\r')
-			break;
-		else if (request[total_read_bytes - 1] == '\n' && request[total_read_bytes - 2] == '\n')
-			break;
+	recved = recv(client->connfd, buf, len, 0);
+	if (recved < 0) {
+		// Error
+		close(client->connfd);
 	}
 
-	// request contains our HTTP request.
-	wookie_request *req = w_malloc(sizeof *req);
-	req->parsed_request = parser_parse(request);
-	req->client = client;
+	nparsed = http_parser_execute(&parser, client->server->settings, buf, recved);
 
-	// free up some now useless memory
-	w_free(request);
+	// did we get the same amount of bytes?
+	if (recved != nparsed) {
+		// Error
+		close(client->connfd);
+	}
 
-	// give it back to the framework
-	// TODO: don't spawn a new thread with the client in line :(
-	pthread_t thread;
-	pthread_create(&thread, NULL, wookie_framework_request, req);
-	pthread_detach(thread);
-
-	pthread_exit(0);
+	// the http parser will then call on_message_complete() with the appropriate data
 	return NULL;
 }
 
@@ -87,7 +81,9 @@ int wookie_start_server(wookie_framework *framework, char *host, int port) {
 	server->address = inet_network(host);
 	server->listenfd = -1;
 	server->framework = framework;
-	//server->settings // setup settings
+
+	memset(&server->settings, '\0', sizeof(server->settings));
+	server->settings->on_message_complete = on_message_complete;
 
 	// open the socket
 	int on = 1;

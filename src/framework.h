@@ -2,6 +2,8 @@
 #ifndef _FRAMEWORK_H
 #define _FRAMEWORK_H
 
+#include "../deps/http-parser/http_parser.c"
+
 typedef struct wookie_framework wookie_framework;
 typedef struct wookie_route wookie_route;
 
@@ -9,7 +11,7 @@ typedef struct wookie_route wookie_route;
  * Handle a request to the framework.
  * @param  arg http_request request.
  */
-void *wookie_framework_request(void *arg);
+void wookie_framework_request(http_parser *parser);
 
 /**
  * Creates a new wookie framework.

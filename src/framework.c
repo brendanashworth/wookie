@@ -5,14 +5,13 @@
 #include "memory.h"
 #include "server.h"
 #include "http_response.h"
-#include "parser.h"
 
 #define FRAMEWORK_MAX_ROUTES 100
 
 // Representation of a route in wookie (to be replaced with r3)
 struct wookie_route {
 	char *path;
-	http_request_type reqtype;
+	enum http_method reqtype;
 	void *(*call_route)(wookie_request*, wookie_response*);
 };
 
@@ -58,9 +57,14 @@ int wookie_start_framework(wookie_framework *framework) {
 	return wookie_start_server(framework, framework->host, framework->port);
 }
 
-void *wookie_framework_request(void *arg) {
+void wookie_framework_request(http_parser *parser) {
+	// HOLD UP BITCH
+	// WE GOT A NEW BETA FEATURE TO TEST
+
+	printf("Received request\n");
+
 	// Get both the request and response
-	wookie_request *req = (wookie_request*)arg;
+	/*wookie_request *req = (wookie_request*)arg;
 	wookie_response *response = w_malloc(sizeof *response);
 
 	wookie_framework *framework = req->client->server->framework;
@@ -97,5 +101,5 @@ void *wookie_framework_request(void *arg) {
 	free(response);
 
 	pthread_exit(0);
-	return NULL;
+	return NULL;*/
 }
