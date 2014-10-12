@@ -1,7 +1,7 @@
 # General compilation settings
 CC ?= clang
 BIN ?= ./wookie
-CFLAGS ?= -Wall -Wextra -O2
+CFLAGS ?= -Wall -Wextra -O2 -Ideps -Isrc
 
 # If we're compiling on GCC...
 ifeq ($(CC), gcc)

@@ -2,13 +2,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../../src/framework.h"
+#include "framework.h"
 
 void *handle_request(wookie_request *request, wookie_response *response) {
 	// Send answer
 	response->code = "200";
 	response->content = "<html><body><h1>Example HTTP response, from wookie server.</h1></body></html>";
-	
+
 	return NULL;
 }
 
@@ -25,7 +25,7 @@ int main(int argc, char *argv[]) {
 	// add routes
 	wookie_route *route = w_malloc(sizeof *route);
 	route->path = "/";
-	route->reqtype = HTTP_GET;
+	route->type = HTTP_GET;
 	route->call_route = &handle_request;
 	wookie_add_route(framework, route);
 

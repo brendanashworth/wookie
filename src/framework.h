@@ -2,7 +2,7 @@
 #ifndef _FRAMEWORK_H
 #define _FRAMEWORK_H
 
-#include "../deps/http-parser/http_parser.c"
+#include "http-parser/http_parser.c"
 
 typedef struct wookie_framework wookie_framework;
 typedef struct wookie_route wookie_route;

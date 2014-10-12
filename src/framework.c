@@ -11,7 +11,7 @@
 // Representation of a route in wookie (to be replaced with r3)
 struct wookie_route {
 	char *path;
-	enum http_method reqtype;
+	enum http_method type;
 	void *(*call_route)(wookie_request*, wookie_response*);
 };
 
@@ -42,12 +42,9 @@ void wookie_add_route(wookie_framework *framework, wookie_route *route) {
 		return;
 	}
 
-	// reallocate for new object
+	// reallocate for object and copy over
 	framework->routes[framework->routes_length] = w_malloc(sizeof(wookie_route));
-	// copy over route
-	framework->routes[framework->routes_length]->path = route->path;
-	framework->routes[framework->routes_length]->reqtype = route->reqtype;
-	framework->routes[framework->routes_length]->call_route = route->call_route;
+	framework->routes[framework->routes_length] = route;
 	framework->routes_length++;
 }
 
