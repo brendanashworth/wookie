@@ -1,14 +1,22 @@
 // framework.c
 #include <stdio.h>
 
+// Must not only include stuff used by the framework.c file, but also application.c
+#include "memory.h"
+#include "server.h"
+#include "http_response.h"
+#include "parser.h"
+
 #define FRAMEWORK_MAX_ROUTES 100
 
+// Representation of a route in wookie (to be replaced with r3)
 struct wookie_route {
 	char *path;
 	http_request_type reqtype;
 	void *(*call_route)(wookie_request*, wookie_response*);
 };
 
+// Representation of the framework itself
 struct wookie_framework {
 	struct wookie_server *server;
 	char *host;
@@ -46,7 +54,7 @@ void wookie_add_route(wookie_framework *framework, wookie_route *route) {
 
 int wookie_start_framework(wookie_framework *framework) {
 	// Go!
-	printf("Starting wookie HTTP server on %s:%d\n", framework->host, framework->port);
+	printf("Starting wookie HTTP server on %s:%d...\n", framework->host, framework->port);
 	return wookie_start_server(framework, framework->host, framework->port);
 }
 
@@ -80,14 +88,14 @@ void *wookie_framework_request(void *arg) {
 	http_response_send(response, req->client->connfd);
 	close(req->client->connfd);
 
-	#ifdef MULTITHREADING
+	// The request is done - cleanup
 	w_free(req->client);
 	w_free(req->parsed_request->path);
 	w_free(req->parsed_request);
 	w_free(req);
 
-	pthread_exit(0);
-	#endif
+	free(response);
 
+	pthread_exit(0);
 	return NULL;
 }

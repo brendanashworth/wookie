@@ -5,28 +5,33 @@
 typedef struct wookie_framework wookie_framework;
 typedef struct wookie_route wookie_route;
 
-/* Send an HTTP request back to the framework */
-void *wookie_framework_request(void*);
+/**
+ * Handle a request to the framework.
+ * @param  arg http_request request.
+ */
+void *wookie_framework_request(void *arg);
 
-// Include everything.
-// First utilities
-#include "memory.h"
+/**
+ * Creates a new wookie framework.
+ * @param  host String representation of the host to listen on.
+ * @param  port Port to listen on.
+ * @return      A new wookie framework; must be w_free()'d.
+ */
+wookie_framework *wookie_new_framework(char *host, int port);
 
-// Then the HTTP stuff
-#include "parser.h"
-#include "http_response.h"
+/**
+ * Adds a new route to the framework.
+ * @param framework The framework to add the route to.
+ * @param route     The route to add.
+ */
+void wookie_add_route(wookie_framework *framework, wookie_route *route);
 
-// Then the server & framework
-#include "server.h"
-
-/* Create new framework */
-wookie_framework *wookie_new_framework(char*, int);
-
-/* Add a route to the framework */
-void wookie_add_route(wookie_framework*, wookie_route*);
-
-/* Start the framework */
-int wookie_start_framework(wookie_framework*);
+/**
+ * Starts the framework server.
+ * @param  framework The framework to start with.
+ * @return           The framework's return value.
+ */
+int wookie_start_framework(wookie_framework *framework);
 
 #include "framework.c"
 #endif

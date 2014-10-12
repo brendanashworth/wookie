@@ -1,22 +1,24 @@
 // server.c
 
 // multithreading options (comment multithreading out to go synchronously)
-#define MULTITHREADING
-#define MULTITHREADING_THREADS 10
+#define EWOK_WORKERS 10
 
 #include <stdio.h>
+#include <errno.h>
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
-#ifdef MULTITHREADING
 #include <pthread.h>
-#include "cluster.h"
-#endif
 #include <arpa/inet.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+
+//#include "../deps/http-parser/http_parser.h"
+
 #include "memory.h"
+#include "parser.h"
+#include "cluster.h"
 
 // wookie server data representation
 struct wookie_server {
@@ -24,6 +26,7 @@ struct wookie_server {
 	in_addr_t address;
 	int listenfd;
 	wookie_framework *framework;
+	http_parser_settings *settings;
 };
 
 // wookie client data representation
@@ -68,21 +71,12 @@ void *wookie_handle_client(void *arg) {
 	w_free(request);
 
 	// give it back to the framework
-	#ifdef MULTITHREADING
+	// TODO: don't spawn a new thread with the client in line :(
 	pthread_t thread;
 	pthread_create(&thread, NULL, wookie_framework_request, req);
 	pthread_detach(thread);
 
 	pthread_exit(0);
-	#else
-	wookie_framework_request(req);
-	// free up memory
-	w_free(req->parsed_request->path);
-	w_free(req->parsed_request);
-	w_free(req->client);
-	w_free(req);
-	#endif
-
 	return NULL;
 }
 
@@ -93,10 +87,20 @@ int wookie_start_server(wookie_framework *framework, char *host, int port) {
 	server->address = inet_network(host);
 	server->listenfd = -1;
 	server->framework = framework;
+	//server->settings // setup settings
 
 	// open the socket
 	int on = 1;
 	server->listenfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	if (server->listenfd == -1) {
+		printf("ERROR: Could not create socket.");
+
+		close(server->listenfd);
+		w_free(server);
+		return 1;
+	}
+
+	// set the socket options
 	setsockopt(server->listenfd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(int));
 
 	// setup the server address
@@ -109,29 +113,25 @@ int wookie_start_server(wookie_framework *framework, char *host, int port) {
 
 	// bind to ip
 	int result = bind(server->listenfd, (struct sockaddr*)&server_address, sizeof(server_address));
-
-	// check for binding errors
 	if (result == -1) {
-		printf("ERROR: Could not bind to socket %s:%d\n", host, server->port);
+		printf("ERROR: %s: Could not bind to socket %s:%d\n", strerror(errno), host, server->port);
+
+		close(server->listenfd);
 		w_free(server);
 		return 1;
 	}
 
-	// backlog of 10
+	// listen with a backlog of 10
 	result = listen(server->listenfd, 10);
-
-	// check for listen errors
 	if (result == -1) {
-		printf("ERROR: Could not listen on socket %s:%d\n", host, server->port);
+		printf("ERROR: %s Could not listen on socket %s:%d\n", strerror(errno), host, server->port);
+
+		close(server->listenfd);
 		w_free(server);
 		return 1;
 	}
 
-	#ifndef MULTITHREADING
-	printf("Wookie was not compiled for multithreading. This may be a performance issue.\n");
-	#endif
-
-	printf("Now listening.\n");
+	printf("Now listening...\n");
 
 	// get clients
 	while (1) {
@@ -140,16 +140,11 @@ int wookie_start_server(wookie_framework *framework, char *host, int port) {
 		client->connfd = accept(server->listenfd, (struct sockaddr*)NULL, NULL);
 		client->server = server;
 
-		#ifdef MULTITHREADING
 		// multithreaded handling of clients
+		// TODO: don't spawn a new thread with the client waiting :(
 		pthread_t thread;
 		pthread_create(&thread, NULL, wookie_handle_client, client);
 		pthread_detach(thread);
-		#else
-		// this handles it in the main thread, which can be a massive issue to performance.
-		wookie_handle_client(client);
-		w_free(client);
-		#endif
 	}
 
 	// close server
