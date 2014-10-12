@@ -14,7 +14,7 @@
 struct wookie_route {
 	char *path;
 	enum http_method type;
-	void *(*call_route)(wookie_request*, wookie_response*);
+	void *(*call_route)(http_parser*, wookie_response*);
 };
 
 // Representation of the framework itself

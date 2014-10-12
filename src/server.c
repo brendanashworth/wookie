@@ -1,14 +1,13 @@
 // server.c
 
 // multithreading options (comment multithreading out to go synchronously)
-#define EWOK_WORKERS 10
+#define EWOK_WORKERS 128
 
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <pthread.h>
 #include <arpa/inet.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -34,13 +33,13 @@ struct wookie_client {
 	wookie_server *server;
 };
 
+// Private forward declarations
+void *wookie_server_work(wookie_server *server);
+
 // Callback for the HTTP parser, simply forwards to wookie_framework_request
 int on_message_complete(http_parser *parser, const char *at, size_t length) {
-	printf("Swag %s\n", at);
-
 	// Pass the request to the framework
 	wookie_framework_request(parser);
-
 
 	return 0;
 }
@@ -78,10 +77,13 @@ void *wookie_handle_client(void *arg) {
 	DEBUG("Executed the HTTP parser");
 
 	// did we get the same amount of bytes?
-	if (recved != nparsed) {
+	if ((unsigned)recved != nparsed) {
 		// Error
 		close(client->connfd);
 	}
+
+	// Cleanup
+	w_free(parser);
 
 	// the http parser will then call on_message_complete() with the appropriate data
 	DEBUG("wookie_handle_client is returning out");
@@ -141,29 +143,35 @@ int wookie_start_server(wookie_framework *framework, char *host, int port) {
 		w_free(server);
 		return 1;
 	}
-	DEBUG("Started listening");
+	DEBUG("Started listening on the file descriptor");
 
-	printf("Now listening...\n");
+	printf("Now listening on socket...\n");
 
-	// get clients
-	while (1) {
+	// Create the cluster
+	ewok_cluster *cluster = cluster_init(EWOK_WORKERS);
+	cluster_spawn(cluster, &wookie_server_work, server);
 
-		// make wookie_client and pass it to desired handler; wookie_handle_client free's the memory
-		wookie_client *client = w_malloc(sizeof *client);
-		client->connfd = accept(server->listenfd, (struct sockaddr*)NULL, NULL);
-		client->server = server;
+	// Now we nonchalantly wait until forever. Stops are handled from SIGINT
+	while (1)
+		usleep(10000); // Wait ten seconds
+}
 
-		DEBUG("Accepted new client");
+void *wookie_server_work(wookie_server *server) {
+	wookie_client *client = w_malloc(sizeof *client);
+	client->server = server;
 
-		// multithreaded handling of clients
-		// TODO: don't spawn a new thread with the client waiting :(
-		pthread_t thread;
-		pthread_create(&thread, NULL, wookie_handle_client, client);
-		pthread_detach(thread);
-		DEBUG("Spawned and detached client thread to wookie_handle_client");
-	}
+	client->connfd = accept(server->listenfd, (struct sockaddr*)NULL, NULL);
 
+	// Now that we've accepted a new client, process the client.
+	wookie_handle_client(client);
+
+	// The function returned and we can go back into the cluster :)
+	return NULL;
+}
+
+// lol no idea
+/*int closeserver() {
 	// close server
 	close(server->listenfd);
 	w_free(server);
-}
+}*/
