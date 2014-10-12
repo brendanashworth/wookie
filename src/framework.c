@@ -58,7 +58,7 @@ void wookie_framework_request(http_parser *parser) {
 	// HOLD UP BITCH
 	// WE GOT A NEW BETA FEATURE TO TEST
 
-	printf("Received request\n");
+	DEBUG("Received request");
 
 	// Get both the request and response
 	/*wookie_request *req = (wookie_request*)arg;
