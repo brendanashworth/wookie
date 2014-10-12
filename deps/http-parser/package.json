@@ -1,0 +1,9 @@
+{
+  "name": "http-parser",
+  "version": "2.3.0",
+  "repo": "brendanashworth/http-parser",
+  "description": "http request/response parser for c",
+  "keywords": ["http", "parser", "request", "response"],
+  "license": "MIT",
+  "src": ["http_parser.h", "http_parser.c"]
+}
