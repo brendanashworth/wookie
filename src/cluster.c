@@ -10,6 +10,11 @@ struct ewok_cluster {
 	pthread_t *threads;
 };
 
+struct ewok_info {
+	void (*function)(void *);
+	void *arg;
+};
+
 // Private forward declarations
 void *cluster_loop(void *arg);
 
@@ -29,10 +34,14 @@ ewok_cluster *cluster_init(int workers) {
 	return cluster;
 }
 
-void cluster_spawn(ewok_cluster *cluster, void (function)(void *)) {
+void cluster_spawn(ewok_cluster *cluster, void (function)(void *), void *arg) {
+	ewok_info *info = w_malloc(sizeof *info);
+	info->function = function;
+	info->arg = arg;
+
 	for (int i = 0; i < cluster->workers; i++) {
 		pthread_t thread;
-		pthread_create(&thread, NULL, cluster_loop, function);
+		pthread_create(&thread, NULL, cluster_loop, info);
 		pthread_detach(thread);
 
 		cluster->threads[i] = thread;
@@ -53,10 +62,11 @@ void cluster_stop(ewok_cluster *cluster) {
 }
 
 void *cluster_loop(void *arg) {
-	void (*function)();
-	function = (void *)arg;
+	ewok_info *info = (ewok_info *)arg;
+
+	void (*function)() = info->function;
 
 	while (1) {
-		function();
+		function(info->arg);
 	}
 }

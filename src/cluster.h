@@ -4,6 +4,7 @@
 #define _CLUSTER_H
 
 typedef struct ewok_cluster ewok_cluster;
+typedef struct ewok_info ewok_info;
 
 /**
  * Creates an ewok cluster.
@@ -12,7 +13,7 @@ typedef struct ewok_cluster ewok_cluster;
  */
 ewok_cluster *cluster_init(int workers);
 
-void cluster_spawn(ewok_cluster *cluster, void (function)());
+void cluster_spawn(ewok_cluster *cluster, void (function)(void *), void *arg);
 
 /**
  * Stops a cluster.

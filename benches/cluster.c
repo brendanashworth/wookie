@@ -15,7 +15,7 @@ int main() {
 		MEASURE(cluster_512)
 
 		ewok_cluster *cluster = cluster_init(512);
-		cluster_spawn(cluster, &donothing);
+		cluster_spawn(cluster, &donothing, NULL);
 
 		cluster_stop(cluster);
 
@@ -28,7 +28,7 @@ int main() {
 		MEASURE(cluster_128)
 
 		ewok_cluster *cluster = cluster_init(128);
-		cluster_spawn(cluster, &donothing);
+		cluster_spawn(cluster, &donothing, NULL);
 
 		cluster_stop(cluster);
 
@@ -41,7 +41,7 @@ int main() {
 		MEASURE(cluster_16)
 
 		ewok_cluster *cluster = cluster_init(16);
-		cluster_spawn(cluster, &donothing);
+		cluster_spawn(cluster, &donothing, NULL);
 
 		cluster_stop(cluster);
 
