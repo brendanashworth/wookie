@@ -4,7 +4,7 @@
 
 #include "framework.h"
 
-void *handle_request(wookie_request *request, wookie_response *response) {
+void *handle_request(http_parser *parser, wookie_response *response) {
 	// Send answer
 	response->code = "200";
 	response->content = "<html><body><h1>Example HTTP response, from wookie server.</h1></body></html>";

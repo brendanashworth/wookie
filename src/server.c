@@ -35,9 +35,12 @@ struct wookie_client {
 };
 
 // Callback for the HTTP parser, simply forwards to wookie_framework_request
-int on_message_complete(http_parser *parser) {
+int on_message_complete(http_parser *parser, const char *at, size_t length) {
+	printf("Swag %s\n", at);
+
 	// Pass the request to the framework
 	wookie_framework_request(parser);
+
 
 	return 0;
 }
@@ -46,15 +49,15 @@ int on_message_complete(http_parser *parser) {
 void *wookie_handle_client(void *arg) {
 	DEBUG("wookie_handle_client received call");
 
-	// get arguments
-	wookie_client *client = (wookie_client*)arg;
-
 	http_parser_settings settings;
 	settings.on_message_complete = on_message_complete;
 
 	http_parser *parser = w_malloc(sizeof(http_parser));
 	http_parser_init(parser, HTTP_REQUEST);
-	parser->data = (void *)client->connfd;
+	parser->data = arg;
+
+	// get arguments
+	wookie_client *client = (wookie_client*)arg;
 
 	DEBUG("http_parser was initiated");
 

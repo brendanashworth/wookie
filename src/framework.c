@@ -1,6 +1,8 @@
 // framework.c
 #include <stdio.h>
 
+// TODO: #include "r3/r3.h"
+
 // Must not only include stuff used by the framework.c file, but also application.c
 #include "memory.h"
 #include "server.h"
@@ -55,24 +57,21 @@ int wookie_start_framework(wookie_framework *framework) {
 }
 
 void wookie_framework_request(http_parser *parser) {
-	// HOLD UP BITCH
-	// WE GOT A NEW BETA FEATURE TO TEST
-
-	DEBUG("Received request");
+	DEBUG("Received request to framework");
 
 	// Get both the request and response
-	/*wookie_request *req = (wookie_request*)arg;
+	wookie_client *client = (wookie_client *)parser->data;
 	wookie_response *response = w_malloc(sizeof *response);
 
-	wookie_framework *framework = req->client->server->framework;
+	wookie_framework *framework = client->server->framework;
 
 	// Iterate through routes, checking if path is EQUAL (not yet to regexes!)
 	int handled = 0;
 	for (int i = 0; i < framework->routes_length; i++) {
 		// Check if the path matches
-		if (strncmp(req->parsed_request->path, framework->routes[i]->path, sizeof(&framework->routes[i]->path)) == 0) {
+		if (strncmp("  ", framework->routes[i]->path, sizeof(&framework->routes[i]->path)) == 0) {
 			// Call the route, supply both the request and response.
-			framework->routes[i]->call_route(req, response);
+			framework->routes[i]->call_route(parser, response);
 
 			handled = 1;
 			break;
@@ -86,17 +85,12 @@ void wookie_framework_request(http_parser *parser) {
 	}
 
 	// Send HTTP response and close connection
-	http_response_send(response, req->client->connfd);
-	close(req->client->connfd);
+	http_response_send(response, client->connfd);
+	close(client->connfd);
 
 	// The request is done - cleanup
-	w_free(req->client);
-	w_free(req->parsed_request->path);
-	w_free(req->parsed_request);
-	w_free(req);
-
-	free(response);
+	w_free(client);
+	w_free(response);
 
 	pthread_exit(0);
-	return NULL;*/
 }
