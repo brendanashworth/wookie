@@ -75,8 +75,6 @@ void *wookie_handle_client(void *arg) {
 	}
 	DEBUG("Recieved some bytes from the client and put into the buffer");
 
-	printf("Parser (), settings (), buf (%s), recved (%zd)\n", buf, recved);
-
 	size_t nparsed = http_parser_execute(parser, &settings, buf, recved);
 	DEBUG("Executed the HTTP parser");
 
