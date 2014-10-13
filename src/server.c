@@ -49,6 +49,7 @@ void *wookie_handle_client(void *arg) {
 	DEBUG("wookie_handle_client received call");
 
 	http_parser_settings settings;
+	memset(&settings, '\0', sizeof(http_parser_settings));
 	settings.on_message_complete = on_message_complete;
 
 	http_parser *parser = w_malloc(sizeof(http_parser));
@@ -60,26 +61,31 @@ void *wookie_handle_client(void *arg) {
 
 	DEBUG("http_parser was initiated");
 
-	size_t nparsed, len = 80 * 1024;
+	size_t len = 80 * 1024;
 	char buf[len];
-	ssize_t recved;
 
 	DEBUG("Initiated some variables regarding buffering and parsing");
 
-	recved = recv(client->connfd, buf, len, 0);
+	ssize_t recved = recv(client->connfd, buf, len, 0);
 	if (recved < 0) {
 		// Error
 		close(client->connfd);
+		w_free(parser);
+		return NULL;
 	}
 	DEBUG("Recieved some bytes from the client and put into the buffer");
 
-	nparsed = http_parser_execute(parser, &settings, buf, recved);
+	printf("Parser (), settings (), buf (%s), recved (%zd)\n", buf, recved);
+
+	size_t nparsed = http_parser_execute(parser, &settings, buf, recved);
 	DEBUG("Executed the HTTP parser");
 
 	// did we get the same amount of bytes?
 	if ((unsigned)recved != nparsed) {
 		// Error
 		close(client->connfd);
+		w_free(parser);
+		return NULL;
 	}
 
 	// Cleanup
