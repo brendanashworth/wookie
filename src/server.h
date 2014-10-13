@@ -21,5 +21,7 @@ int wookie_start_server(wookie_framework *framework, char *host, int port);
  */
 void *wookie_handle_client(void *arg);
 
+extern int server_calls;
+
 #include "server.c"
 #endif

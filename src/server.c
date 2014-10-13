@@ -25,6 +25,7 @@ struct wookie_server {
 	in_addr_t address;
 	int listenfd;
 	wookie_framework *framework;
+	int calls;
 };
 
 // wookie client data representation
@@ -36,8 +37,11 @@ struct wookie_client {
 // Private forward declarations
 void *wookie_server_work(wookie_server *server);
 
+int server_calls = 0;
+
 // Callback for the HTTP parser, simply forwards to wookie_framework_request
 int on_message_complete(http_parser *parser, const char *at, size_t length) {
+	server_calls++;
 	// Pass the request to the framework
 	wookie_framework_request(parser);
 
@@ -76,7 +80,7 @@ void *wookie_handle_client(void *arg) {
 	DEBUG("Recieved some bytes from the client and put into the buffer");
 
 	size_t nparsed = http_parser_execute(parser, &settings, buf, recved);
-	DEBUG("Executed the HTTP parser");
+	DEBUG("Finished running the HTTP parser");
 
 	// did we get the same amount of bytes?
 	if ((unsigned)recved != nparsed) {
@@ -87,6 +91,7 @@ void *wookie_handle_client(void *arg) {
 	}
 
 	// Cleanup
+	close(client->connfd);
 	w_free(parser);
 
 	// the http parser will then call on_message_complete() with the appropriate data
@@ -103,6 +108,7 @@ int wookie_start_server(wookie_framework *framework, char *host, int port) {
 	server->address = inet_network(host);
 	server->listenfd = -1;
 	server->framework = framework;
+	server->calls = 0;
 
 	// open the socket
 	int on = 1;
@@ -156,8 +162,11 @@ int wookie_start_server(wookie_framework *framework, char *host, int port) {
 	cluster_spawn(cluster, &wookie_server_work, server);
 
 	// Now we nonchalantly wait until forever. Stops are handled from SIGINT
-	while (1)
-		usleep(10000); // Wait ten seconds
+	while (1) {
+		sleep(1); // Wait one second
+		printf("\rVisits: %d; workers: %d", server_calls, cluster->workers);
+		fflush(stdout);
+	}
 }
 
 void *wookie_server_work(wookie_server *server) {
