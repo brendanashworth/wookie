@@ -68,5 +68,6 @@ void *cluster_loop(void *arg) {
 
 	while (1) {
 		function(info->arg);
+		printf("This never actually returns :(\n");
 	}
 }

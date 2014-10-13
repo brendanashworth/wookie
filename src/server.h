@@ -17,9 +17,9 @@ int wookie_start_server(wookie_framework *framework, char *host, int port);
 
 /**
  * Handles a client in wookie.
- * @param  arg The client.
+ * @param  client The client.
  */
-void *wookie_handle_client(void *arg);
+void wookie_handle_client(wookie_client *client);
 
 extern int server_calls;
 

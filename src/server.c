@@ -48,8 +48,8 @@ int on_message_complete(http_parser *parser, const char *at, size_t length) {
 	return 0;
 }
 
-// handles a wookie client (arg is actually a wookie_client instance)
-void *wookie_handle_client(void *arg) {
+// handles a wookie client
+void wookie_handle_client(wookie_client *client) {
 	DEBUG("wookie_handle_client received call");
 
 	http_parser_settings settings;
@@ -58,10 +58,7 @@ void *wookie_handle_client(void *arg) {
 
 	http_parser *parser = w_malloc(sizeof(http_parser));
 	http_parser_init(parser, HTTP_REQUEST);
-	parser->data = arg;
-
-	// get arguments
-	wookie_client *client = (wookie_client*)arg;
+	parser->data = (void *)client;
 
 	DEBUG("http_parser was initiated");
 
@@ -75,7 +72,7 @@ void *wookie_handle_client(void *arg) {
 		// Error
 		close(client->connfd);
 		w_free(parser);
-		return NULL;
+		return;
 	}
 	DEBUG("Recieved some bytes from the client and put into the buffer");
 
@@ -87,7 +84,7 @@ void *wookie_handle_client(void *arg) {
 		// Error
 		close(client->connfd);
 		w_free(parser);
-		return NULL;
+		return;
 	}
 
 	// Cleanup
@@ -96,7 +93,7 @@ void *wookie_handle_client(void *arg) {
 
 	// the http parser will then call on_message_complete() with the appropriate data
 	DEBUG("wookie_handle_client is returning out");
-	return NULL;
+	return;
 }
 
 int wookie_start_server(wookie_framework *framework, char *host, int port) {
@@ -174,6 +171,12 @@ void *wookie_server_work(wookie_server *server) {
 	client->server = server;
 
 	client->connfd = accept(server->listenfd, (struct sockaddr*)NULL, NULL);
+
+	// Handle eror
+	if (client->connfd < 0) {
+		printf("Error accept()ing client: %d\n", errno);
+		return NULL;
+	}
 
 	// Now that we've accepted a new client, process the client.
 	wookie_handle_client(client);
