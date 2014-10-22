@@ -155,13 +155,13 @@ int wookie_start_server(wookie_framework *framework, char *host, int port) {
 	printf("Now listening on socket...\n");
 
 	// Create the cluster
-	ewok_cluster *cluster = cluster_init(EWOK_WORKERS);
+	ewok_cluster cluster = cluster_init(EWOK_WORKERS);
 	cluster_spawn(cluster, &wookie_server_work, server);
 
 	// Now we nonchalantly wait until forever. Stops are handled from SIGINT
 	while (1) {
 		sleep(1); // Wait one second
-		printf("\rVisits: %d; workers: %d", server_calls, cluster->workers);
+		printf("\rVisits: %d; workers: %d", server_calls, cluster.workers);
 		fflush(stdout);
 	}
 }

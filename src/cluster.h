@@ -11,15 +11,15 @@ typedef struct ewok_info ewok_info;
  * @param  workers Amount of workers in the cluster.
  * @return         The ewok cluster.
  */
-ewok_cluster *cluster_init(int workers);
+ewok_cluster cluster_init(int workers);
 
-void cluster_spawn(ewok_cluster *cluster, void (function)(void *), void *arg);
+void cluster_spawn(ewok_cluster cluster, void (function)(void *), void *arg);
 
 /**
  * Stops a cluster.
  * @param cluster The ewok cluster to stop.
  */
-void cluster_stop(ewok_cluster *cluster);
+void cluster_stop(ewok_cluster cluster);
 
 #include "cluster.c"
 #endif
