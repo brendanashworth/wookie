@@ -91,6 +91,4 @@ void wookie_framework_request(http_parser *parser) {
 	// The request is done - cleanup
 	w_free(client);
 	w_free(response);
-
-	pthread_exit(0);
 }
