@@ -21,8 +21,7 @@ void *cluster_loop(void *arg);
 
 ewok_cluster cluster_init(int workers) {
 	if (workers < 1) {
-		printf("ERROR: ewok_cluster: cannot create cluster of workers with less than 1 worker; used %d workers.", workers);
-		exit(-1);
+		DIE("ewok_cluster: cannot create cluster of workers with less than one worker.", -1);
 	}
 
 	DEBUG("Creating an ewok cluster...");
