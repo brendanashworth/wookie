@@ -1,7 +1,7 @@
 // server.c
 
 // multithreading options (comment multithreading out to go synchronously)
-#define EWOK_WORKERS 128
+#define EWOK_WORKERS 4
 
 #include <stdio.h>
 #include <errno.h>
@@ -25,7 +25,6 @@ struct wookie_server {
 	in_addr_t address;
 	int listenfd;
 	wookie_framework *framework;
-	int calls;
 };
 
 // wookie client data representation
@@ -37,11 +36,8 @@ struct wookie_client {
 // Private forward declarations
 void *wookie_server_work(wookie_server *server);
 
-int server_calls = 0;
-
 // Callback for the HTTP parser, simply forwards to wookie_framework_request
 int on_message_complete(http_parser *parser, const char *at, size_t length) {
-	server_calls++;
 	// Pass the request to the framework
 	wookie_framework_request(parser);
 
@@ -50,8 +46,6 @@ int on_message_complete(http_parser *parser, const char *at, size_t length) {
 
 // handles a wookie client
 void wookie_handle_client(wookie_client *client) {
-	DEBUG("wookie_handle_client received call");
-
 	http_parser_settings settings;
 	memset(&settings, '\0', sizeof(http_parser_settings));
 	settings.on_message_complete = on_message_complete;
@@ -60,12 +54,8 @@ void wookie_handle_client(wookie_client *client) {
 	http_parser_init(parser, HTTP_REQUEST);
 	parser->data = (void *)client;
 
-	DEBUG("http_parser was initiated");
-
 	size_t len = 80 * 1024;
 	char buf[len];
-
-	DEBUG("Initiated some variables regarding buffering and parsing");
 
 	ssize_t recved = recv(client->connfd, buf, len, 0);
 	if (recved < 0) {
@@ -74,10 +64,8 @@ void wookie_handle_client(wookie_client *client) {
 		w_free(parser);
 		return;
 	}
-	DEBUG("Recieved some bytes from the client and put into the buffer");
 
 	size_t nparsed = http_parser_execute(parser, &settings, buf, recved);
-	DEBUG("Finished running the HTTP parser");
 
 	// did we get the same amount of bytes?
 	if ((unsigned)recved != nparsed) {
@@ -92,20 +80,16 @@ void wookie_handle_client(wookie_client *client) {
 	w_free(parser);
 
 	// the http parser will then call on_message_complete() with the appropriate data
-	DEBUG("wookie_handle_client is returning out");
 	return;
 }
 
 int wookie_start_server(wookie_framework *framework, char *host, int port) {
-	DEBUG("wookie_start_server called");
-
 	// create server
 	wookie_server *server = w_malloc(sizeof *server);
 	server->port = port;
 	server->address = inet_network(host);
 	server->listenfd = -1;
 	server->framework = framework;
-	server->calls = 0;
 
 	// open the socket
 	int on = 1;
@@ -117,7 +101,6 @@ int wookie_start_server(wookie_framework *framework, char *host, int port) {
 		w_free(server);
 		return 1;
 	}
-	DEBUG("Created socket");
 
 	// set the socket options
 	setsockopt(server->listenfd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(int));
@@ -139,7 +122,6 @@ int wookie_start_server(wookie_framework *framework, char *host, int port) {
 		w_free(server);
 		return 1;
 	}
-	DEBUG("Bound to socket");
 
 	// listen with a backlog of 10
 	result = listen(server->listenfd, 10);
@@ -150,7 +132,6 @@ int wookie_start_server(wookie_framework *framework, char *host, int port) {
 		w_free(server);
 		return 1;
 	}
-	DEBUG("Started listening on the file descriptor");
 
 	printf("Now listening on socket...\n");
 
@@ -161,8 +142,6 @@ int wookie_start_server(wookie_framework *framework, char *host, int port) {
 	// Now we nonchalantly wait until forever. Stops are handled from SIGINT
 	while (1) {
 		sleep(1); // Wait one second
-		printf("\rVisits: %d; workers: %d", server_calls, cluster.workers);
-		fflush(stdout);
 	}
 }
 
@@ -184,10 +163,3 @@ void *wookie_server_work(wookie_server *server) {
 	// The function returned and we can go back into the cluster :)
 	return NULL;
 }
-
-// lol no idea
-/*int closeserver() {
-	// close server
-	close(server->listenfd);
-	w_free(server);
-}*/

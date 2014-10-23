@@ -1,4 +1,5 @@
 // memory.c
+// in order to keep this module clean, we don't use internal functions.
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>

@@ -66,26 +66,27 @@ void wookie_framework_request(http_parser *parser) {
 	wookie_framework *framework = client->server->framework;
 
 	// Iterate through routes, checking if path is EQUAL (not yet to regexes!)
-	int handled = 0;
 	for (int i = 0; i < framework->routes_length; i++) {
 		// Check if the path matches
-		if (strncmp("  ", framework->routes[i]->path, sizeof(&framework->routes[i]->path)) == 0) {
+		if (strncmp("loldurp", framework->routes[i]->path, sizeof(&framework->routes[i]->path)) == 0) {
 			// Call the route, supply both the request and response.
 			framework->routes[i]->call_route(parser, response);
+			http_response_send(response, client->connfd);
 
-			handled = 1;
-			break;
+			// ew goto
+			goto cleanup;
 		}
 	}
 
-	if (!handled) {
-		// Send 404
-		response->code = "404";
-		response->content = "<html><body><h1>wookie HTTP framework</h1><h2>404: not found</h2></body></html>";
-	}
-
-	// Send HTTP response and close connection
+	// was not handled, send 404
+	response->code = "404";
+	response->content = "<html><body><h1>wookie HTTP framework</h1><h2>404: not found</h2></body></html>";
 	http_response_send(response, client->connfd);
+
+// ew goto
+cleanup:
+
+	// Close connection
 	close(client->connfd);
 
 	// The request is done - cleanup
